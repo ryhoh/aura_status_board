@@ -20,7 +20,8 @@ def load_last_date() -> List[Tuple]:
     from heartbeat_log as hb
     join devices as dev
     on hb.device_id = dev.id
-    group by dev.id;
+    group by dev.id
+    order by name asc;
     """
 
     with _connect() as sess:
