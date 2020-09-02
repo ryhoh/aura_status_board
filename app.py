@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-from pytz import timezone
+from datetime import datetime, timedelta, timezone
 
 from flask import Flask, render_template, request
 
@@ -11,7 +10,7 @@ app = Flask(__name__)
 @app.route('/', methods=["GET"])
 def index():
     records = load_last_date()
-    tz_jp = timezone('Asia/Tokyo')
+    tz_jp = timezone(timedelta(hours=+9), 'JST')
     now = datetime.now(tz=tz_jp)
     past_times = []
     is_exceeded = []  # 一定期間，生存信号を送っていない場合 True
