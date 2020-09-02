@@ -1,0 +1,114 @@
+/* template */
+@charset "UTF-8";
+
+:root {
+  --bg-color-main:       102, 176, 106;
+  --bg-color-0:      rgb(197, 225, 165);
+  --bg-color-1:      rgb(230, 238, 156);
+
+  --tile-offset: 1.375em;
+}
+
+
+body {
+  font-family: "ヒラギノ丸ゴ Pro W4","ヒラギノ丸ゴ Pro W3","ヒラギノ丸ゴ Pro",
+  "Hiragino Maru Gothic Pro","ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro",
+  "メイリオ", Meiryo, Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+  color: #111;
+  background-color: #FFF;
+}
+
+.tile {
+  position: absolute;
+  background-color: rgb(var(--bookmarks-bg-color-main));
+  width : 1.15em;
+  height: 1.15em;
+  margin-top: 0.1em;
+
+  box-shadow:
+    0em                          var(--tile-offset) rgb(var(--bookmarks-bg-color-main)),
+    calc(var(--tile-offset) * 1) var(--tile-offset) rgb(var(--bookmarks-bg-color-main), 0.4),
+    calc(var(--tile-offset) * 1) 0em                rgb(var(--bookmarks-bg-color-main), 0.6),
+    calc(var(--tile-offset) * 2) var(--tile-offset) rgb(var(--bookmarks-bg-color-main), 0.55),
+    calc(var(--tile-offset) * 2) 0em                rgb(var(--bookmarks-bg-color-main), 0.4),
+    calc(var(--tile-offset) * 3) var(--tile-offset) rgb(var(--bookmarks-bg-color-main), 0.3),
+    calc(var(--tile-offset) * 3) 0em                rgb(var(--bookmarks-bg-color-main), 0.1),
+    calc(var(--tile-offset) * 4) var(--tile-offset) rgb(var(--bookmarks-bg-color-main), 0.1),
+    calc(var(--tile-offset) * 4) 0em                rgb(var(--bookmarks-bg-color-main), 0.05);
+}
+
+h1 {
+  display: inline;
+  padding-left: 0.5em;
+  padding-right: 1em;
+  border-left: 0.5em solid rgb(var(--bg-color-main));
+}
+
+
+.tile {
+  position: absolute;
+  background-color: rgb(var(--bg-color-main));
+  width : 1.15em;
+  height: 1.15em;
+  margin-top: 0.1em;
+
+  box-shadow:
+    0em                          var(--tile-offset) rgb(var(--bg-color-main)),
+    calc(var(--tile-offset) * 1) var(--tile-offset) rgb(var(--bg-color-main), 0.4),
+    calc(var(--tile-offset) * 1) 0em                rgb(var(--bg-color-main), 0.6),
+    calc(var(--tile-offset) * 2) var(--tile-offset) rgb(var(--bg-color-main), 0.55),
+    calc(var(--tile-offset) * 2) 0em                rgb(var(--bg-color-main), 0.4),
+    calc(var(--tile-offset) * 3) var(--tile-offset) rgb(var(--bg-color-main), 0.3),
+    calc(var(--tile-offset) * 3) 0em                rgb(var(--bg-color-main), 0.1),
+    calc(var(--tile-offset) * 4) var(--tile-offset) rgb(var(--bg-color-main), 0.1),
+    calc(var(--tile-offset) * 4) 0em                rgb(var(--bg-color-main), 0.05);
+}
+
+table {
+  border-spacing: 5px;
+}
+
+th, td {
+  padding: 5px;
+}
+
+th {
+  color: #FAFAFA;
+  font-size: 17px;
+  padding: 4px;
+}
+
+th {
+  background-color: rgb(var(--bg-color-main));
+}
+
+tr.bg0 td {
+  background-color: var(--bg-color-0);
+}
+
+tr.bg1 td {
+  background-color: var(--bg-color-1);
+}
+
+.warn {
+  color: #c0392b;
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+/* custom */
+th.name {
+  width: 20em;
+}
+
+th.datetime {
+  width: 12em;
+}
+
+th.time {
+  width: 5em;
+}
+
+.datetime, .time {
+  text-align: center;
+}

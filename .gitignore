@@ -1,0 +1,4 @@
+status_board/*
+.idea/*
+__pycache__/*
+db/psql/*

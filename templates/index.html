@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Aura Status Board</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+</head>
+<body>
+    <h1>Aura Status Board</h1>
+    <span class="tile"></span>
+    <h2>General Systems</h2>
+    <table>
+        <tr>
+            <th class="name">Device name</th>
+            <th class="datetime">Last signal</th>
+            <th class="time">Past time</th>
+        </tr>
+        {% for tp in records %}
+        {% set mod = loop.index % 2 %}
+        <tr class="bg{{mod}}">
+            <td class="name">{{ tp[0] }}</td>
+            <td class="datetime">{{ tp[1].isoformat(' ', timespec='seconds') }}</td>
+
+            <td class="time">
+                {% if is_exceeded[loop.index - 1] %}
+                <span class="warn">
+                {% else %}
+                <span>
+                {% endif %}
+                    {{ past_times[loop.index - 1] }}
+                </span>
+            </td>
+
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
