@@ -106,7 +106,7 @@ th.datetime {
 }
 
 th.time {
-  width: 5em;
+  width: 10em;
 }
 
 .datetime, .time {
