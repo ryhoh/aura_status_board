@@ -1,0 +1,15 @@
+th.name {
+  width: 20em;
+}
+
+th.datetime {
+  width: 12em;
+}
+
+th.time {
+  width: 12em;
+}
+
+.datetime, .time {
+  text-align: center;
+}

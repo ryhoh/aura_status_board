@@ -124,20 +124,3 @@ tr.bg1 td {
 .box_container {
 	overflow: hidden;
 }
-
-/* custom */
-th.name {
-  width: 20em;
-}
-
-th.datetime {
-  width: 12em;
-}
-
-th.time {
-  width: 12em;
-}
-
-.datetime, .time {
-  text-align: center;
-}
