@@ -1,0 +1,1 @@
+/Applications/Postgres.app/Contents/Versions/12/bin/postgres "-D" "./psql"
