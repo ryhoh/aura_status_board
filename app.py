@@ -33,6 +33,9 @@ def api_heartbeat():
     req_name = request.form['name']
     global nvidia_smi
     nvidia_smi = request.form['nvidia_smi'].replace(" ", "&nbsp;")
+    if 'nvidia_smi' in request.form.keys():
+        global nvidia_smi
+        nvidia_smi = request.form['nvidia_smi'].replace(" ", "&nbsp;")
 
     dev_names = load_device_name()
     if (req_name,) not in dev_names:
