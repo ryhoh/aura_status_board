@@ -7,6 +7,13 @@
 	--bg-color-0: rgb(197, 225, 165);
 	--bg-color-1: rgb(230, 238, 156);
 	--tile-offset: 1.375em;
+
+	--aura-kcolor-0: 102, 187, 106;
+	--aura-kcolor-1: 156, 204, 101;
+	--aura-kcolor-2: 212, 225, 87;
+
+	--color-caution: #F57F17;
+	--color-warn: #c0392b;
 }
 
 body {
@@ -61,6 +68,10 @@ p.p_bar_main {
 	padding-left: 0.25em;
 }
 
+blockquote p {
+	background-color: #EEEEEE;
+}
+
 /* Table */
 
 table {
@@ -91,28 +102,56 @@ tr.bg1 td {
 
 /* Text Color */
 
-.warn {
-	color: #c0392b;
+.caution {
+	color: var(--color-caution);
 	font-weight: 800;
+}
+
+.warn {
+	color: var(--color-warn);
+	font-weight: 800;
+}
+
+.code {
+    font-family: "Courier New", Consolas, monospace;
 }
 
 /* Tile */
 
 .tile {
 	position: absolute;
-	background-color: rgb(var(--bg-color-main));
+	background-color: rgb(var(--bg-color-main));  /* a11 */
 	width: 1.15em;
 	height: 1.15em;
 	margin-top: 0.1em;
-	box-shadow: 0em                          var(--tile-offset) rgb(var(--bg-color-main)),
-    calc(var(--tile-offset) * 1) var(--tile-offset) rgb(var(--bg-color-main), 0.4),
-    calc(var(--tile-offset) * 1) 0em                rgb(var(--bg-color-main), 0.6),
-    calc(var(--tile-offset) * 2) var(--tile-offset) rgb(var(--bg-color-main), 0.55),
-    calc(var(--tile-offset) * 2) 0em                rgb(var(--bg-color-main), 0.4),
-    calc(var(--tile-offset) * 3) var(--tile-offset) rgb(var(--bg-color-main), 0.3),
-    calc(var(--tile-offset) * 3) 0em                rgb(var(--bg-color-main), 0.1),
-    calc(var(--tile-offset) * 4) var(--tile-offset) rgb(var(--bg-color-main), 0.1),
-    calc(var(--tile-offset) * 4) 0em                rgb(var(--bg-color-main), 0.05);
+	box-shadow:
+	0em var(--tile-offset) rgb(var(--bg-color-main)),  /* a12 */
+    calc(var(--tile-offset) * 1) var(--tile-offset) rgb(var(--bg-color-main), 0.4),   /* a21 */
+    calc(var(--tile-offset) * 1) 0em                rgb(var(--bg-color-main), 0.6),   /* a22 */
+    calc(var(--tile-offset) * 2) var(--tile-offset) rgb(var(--bg-color-main), 0.55),  /* a31 */
+    calc(var(--tile-offset) * 2) 0em                rgb(var(--bg-color-main), 0.4),   /* a32 */
+    calc(var(--tile-offset) * 3) var(--tile-offset) rgb(var(--bg-color-main), 0.3),   /* a41 */
+    calc(var(--tile-offset) * 3) 0em                rgb(var(--bg-color-main), 0.1),   /* a42 */
+    calc(var(--tile-offset) * 4) var(--tile-offset) rgb(var(--bg-color-main), 0.1),   /* a51 */
+    calc(var(--tile-offset) * 4) 0em                rgb(var(--bg-color-main), 0.05);  /* a52 */
+}
+
+.aura_tile {
+	position: absolute;
+	background-color: rgb(var(--aura-kcolor-1));  /* a11 */
+	width: 1.15em;
+	height: 1.15em;
+	margin-top: 0.1em;
+	box-shadow:
+	0em var(--tile-offset) rgb(var(--aura-kcolor-2)),  /* a12 */
+    calc(var(--tile-offset) * 1) var(--tile-offset) rgb(var(--aura-kcolor-0), 0.4),   /* a21 */
+    calc(var(--tile-offset) * 1) 0em                rgb(var(--aura-kcolor-1), 0.6),   /* a22 */
+    calc(var(--tile-offset) * 2) var(--tile-offset) rgb(var(--aura-kcolor-2), 0.55),  /* a31 */
+    calc(var(--tile-offset) * 2) 0em                rgb(var(--aura-kcolor-2), 0.4),   /* a32 */
+    calc(var(--tile-offset) * 3) var(--tile-offset) rgb(var(--aura-kcolor-0), 0.3),   /* a41 */
+    calc(var(--tile-offset) * 3) 0em                rgb(var(--aura-kcolor-1), 0.1),   /* a42 */
+    calc(var(--tile-offset) * 4) var(--tile-offset) rgb(var(--aura-kcolor-2), 0.1),   /* a51 */
+    calc(var(--tile-offset) * 4) 0em                rgb(var(--aura-kcolor-0), 0.05);  /* a52 */
 }
 
 /* Boxing */
@@ -124,3 +163,5 @@ tr.bg1 td {
 .box_container {
 	overflow: hidden;
 }
+
+/* custom */

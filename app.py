@@ -6,6 +6,8 @@ from db import load_last_date, load_device_name, dev_name2dev_id, post_heartbeat
 
 app = Flask(__name__)
 
+nvidia_smi = """No information posted yet!"""  # temporary
+
 
 @app.route('/', methods=["GET"])
 def index():
@@ -22,12 +24,15 @@ def index():
     # print(past_times)
     # print(is_exceeded)
     return render_template('index.html',
+                           nvidia_smi=nvidia_smi,
                            records=records, past_times=past_times, is_exceeded=is_exceeded)
 
 
 @app.route('/api/heartbeat', methods=["POST"])
 def api_heartbeat():
     req_name = request.form['name']
+    global nvidia_smi
+    nvidia_smi = request.form['nvidia_smi'].replace(" ", "&nbsp;")
 
     dev_names = load_device_name()
     if (req_name,) not in dev_names:

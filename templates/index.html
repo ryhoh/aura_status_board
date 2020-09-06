@@ -9,6 +9,7 @@
 <body>
     <h1>Aura Status Board</h1>
     <span class="tile"></span>
+    <span class="aura_tile"></span>
     <h2>General Systems</h2>
     <table>
         <tr>
@@ -35,6 +36,16 @@
         </tr>
         {% endfor %}
     </table>
+
+    <h2>GPGPUs info</h2>
+    <h3>takenaka_dl</h3>
+    <blockquote>
+        <p class="code">
+            {% autoescape false %}
+            {{ nvidia_smi | replace("\n", "<br />") }}
+            {% endautoescape %}
+        </p>
+    </blockquote>
 
     <h2>What's this?</h2>
     <span class="p_bar_1"></span>
