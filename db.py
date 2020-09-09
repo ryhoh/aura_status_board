@@ -51,7 +51,8 @@ def select_device_with_gpuinfo() -> List[Tuple]:
     select d.id, d.name, lgi.detail 
     from devices d
     join last_gpu_info lgi
-    on d.id = lgi.device_id;
+    on d.id = lgi.device_id
+    order by d.id asc;
     """
 
     with _connect() as sess:
