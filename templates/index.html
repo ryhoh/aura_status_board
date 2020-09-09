@@ -37,14 +37,16 @@
     </table>
 
     <h2>GPGPUs info</h2>
-    <h3>takenaka_dl</h3>
+    {% for tp in dev_with_gpu %}
+    <h3>{{ tp[1] }}</h3>
     <blockquote>
         <p class="code">
             {% autoescape false %}
-            {{ nvidia_smi | replace("\n", "<br />") }}
+            {{ tp[2] | replace("\n", "<br />") }}
             {% endautoescape %}
         </p>
     </blockquote>
+    {% endfor %}
 
     <h2>What's this?</h2>
     <span class="p_bar_1"></span>

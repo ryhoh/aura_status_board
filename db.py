@@ -14,7 +14,7 @@ def _connect():
         return psycopg2.connect(DB)
 
 
-def load_last_date() -> List[Tuple]:
+def select_last_date_heartbeat() -> List[Tuple]:
     order = """
     select dev.name as name, max(hb.posted_ts) as last_ts
     from heartbeat_log as hb
@@ -32,10 +32,26 @@ def load_last_date() -> List[Tuple]:
     return res
 
 
-def load_device_name() -> List[Tuple]:
+def select_device_names() -> List[Tuple]:
     order = """
-    select distinct name
+    select name
     from devices;
+    """
+
+    with _connect() as sess:
+        with sess.cursor() as cur:
+            cur.execute(order)
+            res = cur.fetchall()
+
+    return res
+
+
+def select_device_with_gpuinfo() -> List[Tuple]:
+    order = """
+    select d.id, d.name, lgi.detail 
+    from devices d
+    join last_gpu_info lgi
+    on d.id = lgi.device_id;
     """
 
     with _connect() as sess:
@@ -69,4 +85,17 @@ def post_heartbeat(dev_id: str):
     with _connect() as sess:
         with sess.cursor() as cur:
             cur.execute(order, (dev_id,))
+        sess.commit()
+
+
+def post_gpu_info(dev_id: str, info: str):
+    order = """
+    update last_gpu_info
+    set detail = %s
+    where device_id = %s;
+    """
+
+    with _connect() as sess:
+        with sess.cursor() as cur:
+            cur.execute(order, (info, dev_id))
         sess.commit()
