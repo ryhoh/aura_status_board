@@ -16,11 +16,10 @@ def _connect():
 
 def select_last_date_heartbeat() -> List[Tuple]:
     order = """
-    select dev.name as name, max(hb.posted_ts) as last_ts
-    from heartbeat_log as hb
+    select dev.name as name, hb.posted_ts as last_ts
+    from latest_heartbeat as hb
     join devices as dev
     on hb.device_id = dev.id
-    group by dev.id
     order by name asc;
     """
 
@@ -80,7 +79,9 @@ def dev_name2dev_id(dev_name: str) -> str:
 
 def post_heartbeat(dev_id: str):
     order = """
-    insert into heartbeat_log (device_id) values (%s);
+    update latest_heartbeat
+    set posted_ts = current_timestamp
+    where device_id = %s;
     """
 
     with _connect() as sess:

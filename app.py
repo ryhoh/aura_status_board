@@ -7,8 +7,6 @@ import db
 
 app = Flask(__name__)
 
-# nvidia_smi = """No information posted yet!"""  # temporary
-
 
 @app.route('/', methods=["GET"])
 def index():
