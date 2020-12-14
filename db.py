@@ -74,7 +74,10 @@ def dev_name2dev_id(dev_name: str) -> str:
             cur.execute(order, (dev_name,))
             res = cur.fetchall()
 
-    return res[0][0]  # single value
+    try:
+        return res[0][0]  # single value
+    except IndexError:
+        raise ValueError("unregistered dev_name")
 
 
 def post_heartbeat(dev_id: str):

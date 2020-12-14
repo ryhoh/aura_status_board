@@ -37,15 +37,18 @@ def api_heartbeat():
     if not bcrypt.check_password_hash(hashed_pw, pw):
         return Response(response='invalid password\n', status=403)
 
-    dev_id = db.dev_name2dev_id(req_name)
+    try:
+        dev_id = db.dev_name2dev_id(req_name)
+    except ValueError:
+        return Response(response='unregistered name\n', status=400)
 
     if 'nvidia_smi' in request.form.keys():
         info = request.form['nvidia_smi'].replace(" ", "&nbsp;")
         db.post_gpu_info(dev_id, info)
 
-    dev_names = db.select_device_names()
-    if (req_name,) not in dev_names:
-        return Response(response='unregistered name\n', status=400)
+    # dev_names = db.select_device_names()
+    # if (req_name,) not in dev_names:
+    #     return Response(response='unregistered name\n', status=400)
 
     try:
         db.post_heartbeat(dev_id)
