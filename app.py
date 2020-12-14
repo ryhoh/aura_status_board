@@ -1,11 +1,15 @@
 from datetime import datetime, timedelta, timezone
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response
+from flask_bcrypt import Bcrypt
 
 import db
 
 
+hashed_pw = b'$2b$12$3jMfq3IMzFOzJ.LqXiaelOBKbU4A7n.LyBKNAR39lTyKF44WcPscK'
+
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
 
 
 @app.route('/', methods=["GET"])
@@ -29,6 +33,10 @@ def index():
 @app.route('/api/heartbeat', methods=["POST"])
 def api_heartbeat():
     req_name = request.form['name']
+    pw = request.form['password']
+    if not bcrypt.check_password_hash(hashed_pw, pw):
+        return Response(response='invalid password\n', status=403)
+
     dev_id = db.dev_name2dev_id(req_name)
 
     if 'nvidia_smi' in request.form.keys():
@@ -37,14 +45,14 @@ def api_heartbeat():
 
     dev_names = db.select_device_names()
     if (req_name,) not in dev_names:
-        return 'invalid name error\n'
+        return Response(response='unregistered name\n', status=400)
 
     try:
         db.post_heartbeat(dev_id)
     except Exception as e:
-        return str(e)
+        return Response(response=str(e), status=500)
 
-    return 'successfully posted\n'
+    return Response(response='successfully posted\n', status=200)
 
 
 if __name__ == '__main__':
