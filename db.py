@@ -114,7 +114,12 @@ def register_device(dev_name: str) -> str:
 
 def post_heartbeat(dev_id: str):
     order = """
-    update latest_heartbeat
+    insert into latest_heartbeat(device_id, posted_ts)
+    values (%s, current_timestamp)
+    
+    on conflict on constraint latest_heartbeat_un do
+    
+    update
     set posted_ts = current_timestamp
     where device_id = %s;
     """
