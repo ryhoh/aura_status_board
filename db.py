@@ -107,6 +107,7 @@ def register_device(dev_name: str) -> str:
         with sess.cursor() as cur:
             cur.execute(order, (dev_name,))
             res = cur.fetchall()
+        sess.commit()
 
     return res[0][0]  # single value
 
