@@ -133,6 +133,7 @@ def post_gpu_info(dev_id: str, info: str):
     order = """
     insert into last_gpu_info(device_id, detail)
     values (%s, %s)
+    
     on conflict on constraint last_gpu_info_un do
     
     update
