@@ -42,7 +42,7 @@ def api_heartbeat():
     try:  # check device name
         req_name = request.form['name']
     except KeyError:  # empty
-        return Response(response='unregistered name\n', status=400)
+        return Response(response='name cannot be empty\n', status=400)
 
     try:  # getting device id (register new record if not exist)
         dev_id = db.device_name_to_device_id(req_name)
