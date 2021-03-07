@@ -32,24 +32,29 @@ def index():
 
 @app.route('/api/heartbeat', methods=["POST"])
 def api_heartbeat():
-    try:
-        req_name = request.form['name']
-        dev_id = db.dev_name2dev_id(req_name)
-    except (KeyError, ValueError):
-        return Response(response='unregistered name\n', status=400)
-
-    try:
+    try:  # check credential
         pw = request.form['password']
-        if not bcrypt.check_password_hash(hashed_pw, pw):
-            raise ValueError
-    except (KeyError, ValueError):
+    except KeyError:
+        return Response(response='password cannot be empty\n', status=400)
+    if not bcrypt.check_password_hash(hashed_pw, pw):
         return Response(response='invalid password\n', status=403)
 
+    try:  # check device name
+        req_name = request.form['name']
+    except KeyError:  # empty
+        return Response(response='unregistered name\n', status=400)
+
+    try:  # getting device id (register new record if not exist)
+        dev_id = db.device_name_to_device_id(req_name)
+    except ValueError:
+        dev_id = db.register_device(req_name)
+
+    # update gpu-info if device has nvidia_smi
     if 'nvidia_smi' in request.form.keys():
         info = request.form['nvidia_smi'].replace(" ", "&nbsp;")
         db.post_gpu_info(dev_id, info)
 
-    try:
+    try:  # post timestamp
         db.post_heartbeat(dev_id)
     except Exception as e:
         return Response(response=str(e), status=500)

@@ -15,6 +15,9 @@ def _connect():
 
 
 def select_last_date_heartbeat() -> List[Tuple]:
+    """
+    :return: list of (device_name, timestamp)
+    """
     order = """
     select dev.name as name, hb.posted_ts as last_ts
     from latest_heartbeat as hb
@@ -32,6 +35,9 @@ def select_last_date_heartbeat() -> List[Tuple]:
 
 
 def select_device_names() -> List[Tuple]:
+    """
+    :return: list of (device_name,)
+    """
     order = """
     select name
     from devices;
@@ -62,7 +68,12 @@ def select_device_with_gpuinfo() -> List[Tuple]:
     return res
 
 
-def dev_name2dev_id(dev_name: str) -> str:
+def device_name_to_device_id(dev_name: str) -> str:
+    """
+    :param str dev_name: device name
+    :return: device_id corresponding to the device name
+    :raises: ValueError when the device name does not exist
+    """
     order = """
     select id
     from devices
@@ -78,6 +89,26 @@ def dev_name2dev_id(dev_name: str) -> str:
         return res[0][0]  # single value
     except IndexError:
         raise ValueError("unregistered dev_name")
+
+
+def register_device(dev_name: str) -> str:
+    """
+    Register a device
+    :param str dev_name: device name
+    :return: device_id corresponding to the device name
+    """
+    order = """
+    insert into devices(name)
+    values (%s)
+    returning id;
+    """
+
+    with _connect() as sess:
+        with sess.cursor() as cur:
+            cur.execute(order, (dev_name,))
+            res = cur.fetchall()
+
+    return res[0][0]  # single value
 
 
 def post_heartbeat(dev_id: str):
