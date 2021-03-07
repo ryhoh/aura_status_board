@@ -126,7 +126,7 @@ def post_heartbeat(dev_id: str):
 
     with _connect() as sess:
         with sess.cursor() as cur:
-            cur.execute(order, (dev_id,))
+            cur.execute(order, (dev_id, dev_id))
         sess.commit()
 
 
