@@ -119,14 +119,13 @@ def post_heartbeat(dev_id: str):
     
     on conflict on constraint latest_heartbeat_un do
     
-    update latest_heartbeat
-    set posted_ts = current_timestamp
-    where device_id = %s;
+    update
+    set posted_ts = current_timestamp;
     """
 
     with _connect() as sess:
         with sess.cursor() as cur:
-            cur.execute(order, (dev_id, dev_id))
+            cur.execute(order, (dev_id,))
         sess.commit()
 
 
