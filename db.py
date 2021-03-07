@@ -119,7 +119,7 @@ def post_heartbeat(dev_id: str):
     
     on conflict on constraint latest_heartbeat_un do
     
-    update
+    update latest_heartbeat
     set posted_ts = current_timestamp
     where device_id = %s;
     """
