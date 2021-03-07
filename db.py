@@ -131,12 +131,15 @@ def post_heartbeat(dev_id: str):
 
 def post_gpu_info(dev_id: str, info: str):
     order = """
-    update last_gpu_info
-    set detail = %s
-    where device_id = %s;
+    insert into last_gpu_info(device_id, detail)
+    values (%s, %s)
+    on conflict on constraint last_gpu_info_un do
+    
+    update
+    set detail = %s;
     """
 
     with _connect() as sess:
         with sess.cursor() as cur:
-            cur.execute(order, (info, dev_id))
+            cur.execute(order, (dev_id, info, info))
         sess.commit()
