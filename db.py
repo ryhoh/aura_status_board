@@ -1,5 +1,5 @@
 import os
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 import psycopg2
 

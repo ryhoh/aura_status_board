@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
+import json
 
-from flask import Flask, render_template, request, Response
+from flask import Flask, request, Response
 from flask_bcrypt import Bcrypt
 
 import db
@@ -14,20 +15,23 @@ bcrypt = Bcrypt(app)
 
 @app.route('/', methods=["GET"])
 def index():
-    records = db.select_last_date_heartbeat()
-    tz_jp = timezone(timedelta(hours=+9), 'JST')
-    now = datetime.now(tz=tz_jp)
-    past_times = []
-    is_exceeded = []  # 一定期間，生存信号を送っていない場合 True
-    for record in records:
-        past_times.append(str(now - record[1].astimezone(tz_jp)).split('.')[0])
-        is_exceeded.append(now > record[1].astimezone(tz_jp) + timedelta(days=1))
+    return app.send_static_file('index.html')
 
-    dev_with_gpu = db.select_device_with_gpuinfo()  # [(id, name, smi_text) ... ]
 
-    return render_template('index.html',
-                           dev_with_gpu=dev_with_gpu,
-                           records=records, past_times=past_times, is_exceeded=is_exceeded)
+@app.route('/json/last_signal_ts', methods=["GET"])
+def json_last_signal_ts():
+    orig_records = db.select_last_date_heartbeat()
+    records = [{'name': record[0], 'timestamp': str(record[1])} for record in orig_records]
+    records = json.dumps(records)
+    return Response(response=records, status=200)
+
+
+@app.route('/json/last_gpu_info', methods=["GET"])
+def json_last_gpu_info():
+    orig_gpu_info = db.select_device_with_gpuinfo()  # [(id, name, smi_text) ... ]
+    gpu_info = [{'name': record[1], 'detail': record[2]} for record in orig_gpu_info]
+    gpu_info = json.dumps(gpu_info)
+    return Response(response=gpu_info, status=200)
 
 
 @app.route('/api/heartbeat', methods=["POST"])
@@ -49,9 +53,8 @@ def api_heartbeat():
     except ValueError:
         dev_id = db.register_device(req_name)
 
-    # update gpu-info if device has nvidia_smi
-    if 'nvidia_smi' in request.form.keys():
-        info = request.form['nvidia_smi'].replace(" ", "&nbsp;")
+    if 'nvidia_smi' in request.form.keys():  # update gpu-info if device has nvidia_smi
+        info = request.form['nvidia_smi']
         db.post_gpu_info(dev_id, info)
 
     try:  # post timestamp

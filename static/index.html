@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aura Status Board</title>
+  <link rel="stylesheet" type="text/css" href="/static/style.css">
+  <link rel="stylesheet" type="text/css" href="/static/custom.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Aura Status-Board</h1>
+    <span class="aura_tile"></span>
+  </header>
+  <article id="vue_app">
+    <div v-show="errored">
+      <p class="warn">
+        Connection with the server has lost...
+      </p>
+    </div>
+    <div>
+      <h2>Heartbeat Signals</h2>
+      <table>
+        <tr>
+          <th class="name">System name</th>
+          <th class="datetime">Last signal (JST)</th>
+          <th class="time">Past time</th>
+        </tr>
+        <tr v-for="(record, idx) in last_signal_ts" :key="record.name" v-bind:class="'bg' + idx % 2">
+          <td class="name">{{ record.name }}</td>
+          <td class="datetime">{{ record.timestamp | date2readable }}</td>
+
+          <td class="time">
+            <span v-bind:class="IsOver1Day(getPastSeconds(idx))">
+              {{ getPastSeconds(idx) | secondsDiff2Readable }}
+            </span>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div>
+      <h2>GPGPUs info</h2>
+      <div v-for="(record, idx) in last_gpu_info" :key="record.name">
+        <h3>{{ record.name }}</h3>
+        <blockquote>
+          <p class="code" style="white-space: pre">{{ record.detail }}</p>
+        </blockquote>
+      </div>
+    </div>
+
+    <h2>What's this?</h2>
+    <span class="p_bar_1"></span>
+    <div class="box_container">
+      <span class="p_bar_2 box"></span>
+      <p class="box">
+        <p class="box p_bar_main">
+          This is a statuspage for systems under shirosha2's control.<br>
+          Each system sends heartbeat signal regularly, so we can know alive/dead information.<br>
+        </p>
+      </div>
+    </article>
+
+    <hr>
+
+    <footer>Shirosha2, Sep. 2020</footer>
+
+    <script>  // Vue.js
+    const str2Date = (unix_time) => (new Date(unix_time));
+    const secondsFromNow = (date) => Math.trunc((Date.now() - date) / 1000);
+    const update_signals = function() {  // signal 記録を Ajax で更新
+      axios
+        .get('/json/last_signal_ts')
+        .then(response => {
+          this.last_signal_ts = response.data;
+          this.last_signal_ts.forEach((item, i) => {
+            item.timestamp = str2Date(item.timestamp);
+            item.past_seconds = secondsFromNow(item.timestamp);
+          });
+        })
+        .catch(error => {
+          console.log(error);
+          this.errored = true;
+        })
+        .finally(() => this.loading = false);
+    };
+    const update_gpu_info = function() {  // gpu 記録を Ajax で更新
+      axios
+        .get('/json/last_gpu_info')
+        .then(response => {
+          this.last_gpu_info = response.data;
+        })
+        .catch(error => {
+          console.log(error);
+          this.errored = true;
+        })
+        .finally(() => this.loading = false);
+    };
+
+    const vm = new Vue({
+      el: '#vue_app',
+
+      data: () => ({
+        last_signal_ts: null,
+        last_gpu_info: null,
+        loading: true,
+        errored: false,
+      }),
+
+      filters: {
+        secondsDiff2Readable: (total_seconds) => {
+          const days = Math.trunc(total_seconds / 86400);
+          const hours = Math.trunc(total_seconds % 86400 / 3600);
+          const minutes = Math.trunc(total_seconds % 3600 / 60);
+          const seconds = Math.trunc(total_seconds % 60);
+
+          let res = `${seconds}秒`;
+          if (minutes) res = `${minutes}分 ` + res;
+          if (hours) res = `${hours}時間 ` + res;
+          if (days) res = `${days}日 `;  // 24時間以上は日数だけ表示
+          return res;
+        },
+        date2readable: (date) =>
+          `${date.getFullYear()}/${('0' + (date.getMonth() + 1)).slice(-2)}/${('0' + date.getDate()).slice(-2)} \
+          ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`,
+      },
+
+      computed: {
+        getPastSeconds: function() {
+          return (function(idx) {
+            return this.last_signal_ts[idx].past_seconds;
+          }).bind(this);
+        },
+      },
+
+      methods: {
+        IsOver1Day: (seconds) => (seconds > 86400) ? 'warn' : '',
+      },
+
+      mounted() {
+        setTimeout(update_signals.bind(this), 0);
+        setInterval(update_signals.bind(this), 300000);  // 5 minutes
+        setTimeout(update_gpu_info.bind(this), 0);
+        setInterval(update_gpu_info.bind(this), 300000);  // 5 minutes
+
+        setInterval((function() {  // 経過時間を1秒ごとに更新
+          this.last_signal_ts.forEach((item, i) => {
+            item.past_seconds = secondsFromNow(item.timestamp);
+          });
+          for (let i = 0; i < this.last_signal_ts.length; ++i) {
+            this.$set(this.last_signal_ts, i, this.last_signal_ts[i]);
+          };  // Vue に変更を検知させる
+        }).bind(this), 1000);
+      },
+
+    });
+    </script>
+
+  </body>
+  </html>
