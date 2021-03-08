@@ -13,6 +13,10 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 
+def gmt2jst(dt: datetime):
+    return dt.astimezone(timezone(timedelta(hours=+9)))
+
+
 @app.route('/', methods=["GET"])
 def index():
     return app.send_static_file('index.html')
@@ -21,7 +25,7 @@ def index():
 @app.route('/json/last_signal_ts', methods=["GET"])
 def json_last_signal_ts():
     orig_records = db.select_last_date_heartbeat()
-    records = [{'name': record[0], 'timestamp': str(record[1])} for record in orig_records]
+    records = [{'name': record[0], 'timestamp': str(gmt2jst(record[1]))} for record in orig_records]
     records = json.dumps(records)
     return Response(response=records, status=200)
 
