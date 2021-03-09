@@ -1,5 +1,5 @@
 import os
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 import psycopg2
 
@@ -15,6 +15,9 @@ def _connect():
 
 
 def select_last_date_heartbeat() -> List[Tuple]:
+    """
+    :return: list of (device_name, timestamp)
+    """
     order = """
     select dev.name as name, hb.posted_ts as last_ts
     from latest_heartbeat as hb
@@ -32,6 +35,9 @@ def select_last_date_heartbeat() -> List[Tuple]:
 
 
 def select_device_names() -> List[Tuple]:
+    """
+    :return: list of (device_name,)
+    """
     order = """
     select name
     from devices;
@@ -62,7 +68,12 @@ def select_device_with_gpuinfo() -> List[Tuple]:
     return res
 
 
-def dev_name2dev_id(dev_name: str) -> str:
+def device_name_to_device_id(dev_name: str) -> str:
+    """
+    :param str dev_name: device name
+    :return: device_id corresponding to the device name
+    :raises: ValueError when the device name does not exist
+    """
     order = """
     select id
     from devices
@@ -80,11 +91,36 @@ def dev_name2dev_id(dev_name: str) -> str:
         raise ValueError("unregistered dev_name")
 
 
+def register_device(dev_name: str) -> str:
+    """
+    Register a device
+    :param str dev_name: device name
+    :return: device_id corresponding to the device name
+    """
+    order = """
+    insert into devices(name)
+    values (%s)
+    returning id;
+    """
+
+    with _connect() as sess:
+        with sess.cursor() as cur:
+            cur.execute(order, (dev_name,))
+            res = cur.fetchall()
+        sess.commit()
+
+    return res[0][0]  # single value
+
+
 def post_heartbeat(dev_id: str):
     order = """
-    update latest_heartbeat
-    set posted_ts = current_timestamp
-    where device_id = %s;
+    insert into latest_heartbeat(device_id, posted_ts)
+    values (%s, current_timestamp)
+    
+    on conflict on constraint latest_heartbeat_un do
+    
+    update
+    set posted_ts = current_timestamp;
     """
 
     with _connect() as sess:
@@ -95,12 +131,16 @@ def post_heartbeat(dev_id: str):
 
 def post_gpu_info(dev_id: str, info: str):
     order = """
-    update last_gpu_info
-    set detail = %s
-    where device_id = %s;
+    insert into last_gpu_info(device_id, detail)
+    values (%s, %s)
+    
+    on conflict on constraint last_gpu_info_un do
+    
+    update
+    set detail = %s;
     """
 
     with _connect() as sess:
         with sess.cursor() as cur:
-            cur.execute(order, (info, dev_id))
+            cur.execute(order, (dev_id, info, info))
         sess.commit()
