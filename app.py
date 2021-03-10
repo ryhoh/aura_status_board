@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+import datetime
 import json
 
 from flask import Flask, request, Response
@@ -13,8 +13,8 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 
-def gmt2jst(dt: datetime):
-    return dt.astimezone(timezone(timedelta(hours=+9)))
+def gmt2jst(dt: datetime.datetime):
+    return dt.astimezone(datetime.timezone(datetime.timedelta(hours=+9)))
 
 
 @app.route('/', methods=["GET"])
