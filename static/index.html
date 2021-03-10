@@ -41,23 +41,30 @@
           Connection with the server has lost...
         </p>
       </div>
-      <table>
-        <tr>
-          <th class="name">System name</th>
-          <th class="datetime">Last signal (JST)</th>
-          <th class="time">Past time</th>
-        </tr>
-        <tr v-for="(record, idx) in last_signal_ts" :key="record.name" v-bind:class="'bg' + idx % 2">
-          <td class="name">{{ record.name }}</td>
-          <td class="datetime">{{ record.timestamp | date2readable }}</td>
+      <div v-show="loading">
+        <p>
+          Loading...
+        </p>
+      </div>
+      <div v-show="!loading">
+        <table>
+          <tr>
+            <th class="name">System name</th>
+            <th class="datetime">Last signal (JST)</th>
+            <th class="time">Past time</th>
+          </tr>
+          <tr v-for="(record, idx) in last_signal_ts" :key="record.name" v-bind:class="'bg' + idx % 2">
+            <td class="name">{{ record.name }}</td>
+            <td class="datetime">{{ record.timestamp | date2readable }}</td>
 
-          <td class="time">
-            <span v-bind:class="IsOver1Day(getPastSeconds(idx))">
-              {{ getPastSeconds(idx) | secondsDiff2Readable }}
-            </span>
-          </td>
-        </tr>
-      </table>
+            <td class="time">
+              <span v-bind:class="IsOver1Day(getPastSeconds(idx))">
+                {{ getPastSeconds(idx) | secondsDiff2Readable }}
+              </span>
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
   </script>
 
@@ -69,7 +76,12 @@
           Connection with the server has lost...
         </p>
       </div>
-      <div v-for="(record, idx) in last_gpu_info" :key="record.name">
+      <div v-show="loading">
+        <p>
+          Loading...
+        </p>
+      </div>
+      <div v-for="(record, idx) in last_gpu_info" :key="record.name" v-show="!loading">
         <h3>{{ record.name }}</h3>
         <blockquote>
           <p class="code" style="white-space: pre">{{ record.detail }}</p>
