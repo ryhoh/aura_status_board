@@ -1,73 +1,70 @@
 import datetime
-import json
+from typing import Optional
 
-from flask import Flask, request, Response
-from flask_bcrypt import Bcrypt
+from fastapi import FastAPI, Form
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
+from fastapi.staticfiles import StaticFiles
+from passlib.context import CryptContext
+import uvicorn
 
 import db
 
 
 hashed_pw = b'$2b$12$3jMfq3IMzFOzJ.LqXiaelOBKbU4A7n.LyBKNAR39lTyKF44WcPscK'
+pw_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-app = Flask(__name__)
-bcrypt = Bcrypt(app)
+app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 def gmt2jst(dt: datetime.datetime):
     return dt.astimezone(datetime.timezone(datetime.timedelta(hours=+9)))
 
 
-@app.route('/', methods=["GET"])
-def index():
-    return app.send_static_file('index.html')
+def verify_password(plain_password: str, hashed_password: bytes):
+    return pw_context.verify(plain_password, hashed_password)
 
 
-@app.route('/json/last_signal_ts', methods=["GET"])
+@app.get('/')
+async def root():
+    return FileResponse('static/index.html')
+
+
+@app.get('/json/last_signal_ts')
 def json_last_signal_ts():
     orig_records = db.select_last_date_heartbeat()
     records = [{'name': record[0], 'timestamp': str(gmt2jst(record[1]))} for record in orig_records]
-    records = json.dumps(records)
-    return Response(response=records, status=200)
+    return JSONResponse(jsonable_encoder(records))
 
 
-@app.route('/json/last_gpu_info', methods=["GET"])
+@app.get('/json/last_gpu_info')
 def json_last_gpu_info():
     orig_gpu_info = db.select_device_with_gpuinfo()  # [(id, name, smi_text) ... ]
     gpu_info = [{'name': record[1], 'detail': record[2]} for record in orig_gpu_info]
-    gpu_info = json.dumps(gpu_info)
-    return Response(response=gpu_info, status=200)
+    return JSONResponse(jsonable_encoder(gpu_info))
 
 
-@app.route('/api/heartbeat', methods=["POST"])
-def api_heartbeat():
-    try:  # check credential
-        pw = request.form['password']
-    except KeyError:
-        return Response(response='password cannot be empty\n', status=400)
-    if not bcrypt.check_password_hash(hashed_pw, pw):
-        return Response(response='invalid password\n', status=403)
-
-    try:  # check device name
-        req_name = request.form['name']
-    except KeyError:  # empty
-        return Response(response='name cannot be empty\n', status=400)
+@app.post('/api/heartbeat')
+def api_heartbeat(password: str = Form(...), name: str = Form(...), nvidia_smi: Optional[str] = Form(None)):
+    if not verify_password(password, hashed_pw):  # check credential
+        return PlainTextResponse(content='invalid password\n', status_code=403)
 
     try:  # getting device id (register new record if not exist)
-        dev_id = db.device_name_to_device_id(req_name)
+        dev_id = db.device_name_to_device_id(name)
     except ValueError:
-        dev_id = db.register_device(req_name)
+        dev_id = db.register_device(name)
 
-    if 'nvidia_smi' in request.form.keys():  # update gpu-info if device has nvidia_smi
-        info = request.form['nvidia_smi']
-        db.post_gpu_info(dev_id, info)
+    if nvidia_smi is not None:
+        db.post_gpu_info(dev_id, nvidia_smi)
 
     try:  # post timestamp
         db.post_heartbeat(dev_id)
     except Exception as e:
-        return Response(response=str(e), status=500)
+        return PlainTextResponse(content=str(e), status_code=500)
 
-    return Response(response='successfully posted\n', status=200)
+    return PlainTextResponse(content='successfully posted\n', status_code=200)
 
 
 if __name__ == '__main__':
-    app.run()
+    uvicorn.run('app:app', host='0.0.0.0', port=8000)

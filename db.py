@@ -4,14 +4,7 @@ from typing import List, Tuple
 import psycopg2
 
 
-DB = os.environ.get('DATABASE_URL')
-
-
-def _connect():
-    if DB is None:  # for debugging
-        return psycopg2.connect(host="localhost", user="web", password="web", database="status_board")
-    else:
-        return psycopg2.connect(DB)
+DATABASE = os.environ.get('DATABASE_URL') or 'postgresql://web:web@localhost:5432/status_board'
 
 
 def select_last_date_heartbeat() -> List[Tuple]:
@@ -26,7 +19,7 @@ def select_last_date_heartbeat() -> List[Tuple]:
     order by name asc;
     """
 
-    with _connect() as sess:
+    with psycopg2.connect(DATABASE) as sess:
         with sess.cursor() as cur:
             cur.execute(order)
             res = cur.fetchall()
@@ -43,7 +36,7 @@ def select_device_names() -> List[Tuple]:
     from devices;
     """
 
-    with _connect() as sess:
+    with psycopg2.connect(DATABASE) as sess:
         with sess.cursor() as cur:
             cur.execute(order)
             res = cur.fetchall()
@@ -60,7 +53,7 @@ def select_device_with_gpuinfo() -> List[Tuple]:
     order by d.id asc;
     """
 
-    with _connect() as sess:
+    with psycopg2.connect(DATABASE) as sess:
         with sess.cursor() as cur:
             cur.execute(order)
             res = cur.fetchall()
@@ -80,7 +73,7 @@ def device_name_to_device_id(dev_name: str) -> str:
     where name = %s;
     """
 
-    with _connect() as sess:
+    with psycopg2.connect(DATABASE) as sess:
         with sess.cursor() as cur:
             cur.execute(order, (dev_name,))
             res = cur.fetchall()
@@ -103,7 +96,7 @@ def register_device(dev_name: str) -> str:
     returning id;
     """
 
-    with _connect() as sess:
+    with psycopg2.connect(DATABASE) as sess:
         with sess.cursor() as cur:
             cur.execute(order, (dev_name,))
             res = cur.fetchall()
@@ -123,7 +116,7 @@ def post_heartbeat(dev_id: str):
     set posted_ts = current_timestamp;
     """
 
-    with _connect() as sess:
+    with psycopg2.connect(DATABASE) as sess:
         with sess.cursor() as cur:
             cur.execute(order, (dev_id,))
         sess.commit()
@@ -140,7 +133,7 @@ def post_gpu_info(dev_id: str, info: str):
     set detail = %s;
     """
 
-    with _connect() as sess:
+    with psycopg2.connect(DATABASE) as sess:
         with sess.cursor() as cur:
             cur.execute(order, (dev_id, info, info))
         sess.commit()

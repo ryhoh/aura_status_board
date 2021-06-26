@@ -81,7 +81,7 @@ const hb_signals_component = {
       });
       for (let i = 0; i < this.last_signal_ts.length; ++i) {
         this.$set(this.last_signal_ts, i, this.last_signal_ts[i]);
-      };  // Vue に変更を検知させる
+      };  // Vue に変更を検知させるため
     }).bind(this), 1000);
   },
 
