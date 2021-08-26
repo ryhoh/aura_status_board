@@ -137,5 +137,5 @@ def register_device(dev_name: str, has_gpu: bool, return_message: Optional[str])
         with sess.cursor() as cur:
             cur.execute(order_d, (dev_name, has_gpu, return_message))
             if has_gpu:
-                cur.execute(order_gm, dev_name)
+                cur.execute(order_gm, (dev_name,))
         sess.commit()
