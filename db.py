@@ -125,17 +125,18 @@ def register_device(dev_name: str, has_gpu: bool, return_message: Optional[str])
            (%s, %s, %s);
     """
     order_gm = """
-    INSERT INTO public.gpu_machines (machine_id) VALUES
+    INSERT INTO public.gpu_machines (machine_id, last_detail) VALUES
            ((
            SELECT device_id
              FROM devices
             WHERE device_name = %s
-           ));
+           ),
+           %s);
     """
 
     with psycopg2.connect(DATABASE) as sess:
         with sess.cursor() as cur:
             cur.execute(order_d, (dev_name, has_gpu, return_message))
             if has_gpu:
-                cur.execute(order_gm, (dev_name,))
+                cur.execute(order_gm, (dev_name, ''))
         sess.commit()
