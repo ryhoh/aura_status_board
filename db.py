@@ -1,5 +1,5 @@
 import os
-from typing import List, Tuple
+from typing import List, Optional, Set, Tuple
 
 import psycopg2
 
@@ -7,133 +7,125 @@ import psycopg2
 DATABASE = os.environ.get('DATABASE_URL') or 'postgresql://web:web@localhost:5432/status_board'
 
 
-def select_last_date_heartbeat() -> List[Tuple]:
+def select_device_last_heatbeat() -> List[Tuple]:
     """
     :return: list of (device_name, timestamp)
     """
     order = """
-    select dev.name as name, hb.posted_ts as last_ts
-    from latest_heartbeat as hb
-    join devices as dev
-    on hb.device_id = dev.id
-    order by name asc;
+    SELECT device_name, last_heatbeat
+      FROM devices
+     ORDER BY device_name asc;
     """
 
     with psycopg2.connect(DATABASE) as sess:
         with sess.cursor() as cur:
             cur.execute(order)
             res = cur.fetchall()
-
     return res
 
 
-def select_device_names() -> List[Tuple]:
+def select_device_names() -> Set[str]:
     """
     :return: list of (device_name,)
     """
     order = """
-    select name
-    from devices;
+    SELECT device_name
+      FROM devices;
+    """
+
+    with psycopg2.connect(DATABASE) as sess:
+        with sess.cursor() as cur:
+            cur.execute(order)
+            res: List[Tuple[str]] = cur.fetchall()
+    return set(tp[0] for tp in res)
+
+
+def select_return_message(dev_name: str) -> str:
+    """
+    :return: return_message of a device
+    """
+    order = """
+    SELECT return_message
+      FROM devices
+     WHERE device_name = %s;
+    """
+
+    with psycopg2.connect(DATABASE) as sess:
+        with sess.cursor() as cur:
+            cur.execute(order, (dev_name,))
+            res: Tuple[str] = cur.fetchone()
+    return res[0]  # return single value
+
+
+def select_device_last_detail() -> List[Tuple]:
+    """
+    :return: list of (device_name, last_detail)
+    """
+    order = """
+    SELECT D.device_name, GM.last_detail
+      FROM gpu_machines GM
+     INNER JOIN devices D
+        ON GM.machine_id = D.device_id
+     ORDER BY D.device_name ASC;
     """
 
     with psycopg2.connect(DATABASE) as sess:
         with sess.cursor() as cur:
             cur.execute(order)
             res = cur.fetchall()
-
     return res
 
 
-def select_device_with_gpuinfo() -> List[Tuple]:
+def post_heartbeat(dev_name: str):
     order = """
-    select d.id, d.name, lgi.detail 
-    from devices d
-    join last_gpu_info lgi
-    on d.id = lgi.device_id
-    order by d.id asc;
-    """
-
-    with psycopg2.connect(DATABASE) as sess:
-        with sess.cursor() as cur:
-            cur.execute(order)
-            res = cur.fetchall()
-
-    return res
-
-
-def device_name_to_device_id(dev_name: str) -> str:
-    """
-    :param str dev_name: device name
-    :return: device_id corresponding to the device name
-    :raises: ValueError when the device name does not exist
-    """
-    order = """
-    select id
-    from devices
-    where name = %s;
+    UPDATE devices
+       SET last_heartbeat = current_timestamp
+     WHERE device_name = %s;
     """
 
     with psycopg2.connect(DATABASE) as sess:
         with sess.cursor() as cur:
             cur.execute(order, (dev_name,))
-            res = cur.fetchall()
-
-    try:
-        return res[0][0]  # single value
-    except IndexError:
-        raise ValueError("unregistered dev_name")
-
-
-def register_device(dev_name: str) -> str:
-    """
-    Register a device
-    :param str dev_name: device name
-    :return: device_id corresponding to the device name
-    """
-    order = """
-    insert into devices(name)
-    values (%s)
-    returning id;
-    """
-
-    with psycopg2.connect(DATABASE) as sess:
-        with sess.cursor() as cur:
-            cur.execute(order, (dev_name,))
-            res = cur.fetchall()
-        sess.commit()
-
-    return res[0][0]  # single value
-
-
-def post_heartbeat(dev_id: str):
-    order = """
-    insert into latest_heartbeat(device_id, posted_ts)
-    values (%s, current_timestamp)
-    
-    on conflict on constraint latest_heartbeat_un do
-    
-    update
-    set posted_ts = current_timestamp;
-    """
-
-    with psycopg2.connect(DATABASE) as sess:
-        with sess.cursor() as cur:
-            cur.execute(order, (dev_id,))
         sess.commit()
 
 
-def post_gpu_info(dev_id: str, info: str):
+def post_gpu_info(dev_name: str, info: str):
     order = """
-    insert into last_gpu_info(device_id, detail)
-    values (%s, %s)
-    
-    on conflict on constraint last_gpu_info_un do
-    
-    update
-    set detail = %s;
+    UPDATE gpu_machines
+       SET last_detail = %s
+     WHERE machine_id = (
+           SELECT device_id
+             FROM devices
+            WHERE device_name = %s AND has_gpu
+    );
     """
 
     with psycopg2.connect(DATABASE) as sess:
         with sess.cursor() as cur:
-            cur.execute(order, (dev_id, info, info))
+            cur.execute(order, (info, dev_name))
+        sess.commit()
+
+
+def update_return_message(dev_name: str, return_message: str):
+    order = """
+    UPDATE devices
+       SET return_message = %s
+     WHERE device_name = %s;
+    """
+
+    with psycopg2.connect(DATABASE) as sess:
+        with sess.cursor() as cur:
+            cur.execute(order, (return_message, dev_name))
+        sess.commit()
+
+
+def register_device(dev_name: str, has_gpu: bool, return_message: Optional[str]):
+    order = """
+    INSERT INTO public.devices (device_name, has_gpu, return_message) VALUES
+           (%s, %s, %s);
+    """
+
+    with psycopg2.connect(DATABASE) as sess:
+        with sess.cursor() as cur:
+            cur.execute(order, (dev_name, has_gpu, return_message))
         sess.commit()

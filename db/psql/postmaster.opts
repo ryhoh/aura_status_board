@@ -1,1 +1,1 @@
-/opt/homebrew/Cellar/postgresql@12/12.6_1/bin/postgres "-D" "."
+/opt/homebrew/Cellar/postgresql@12/12.7/bin/postgres "-D" "."
