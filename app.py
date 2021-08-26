@@ -34,7 +34,10 @@ async def root():
 @app.get('/json/last_signal_ts')
 def json_last_signal_ts():
     orig_records = db.select_device_last_heatbeat()
-    records = [{'name': record[0], 'timestamp': str(gmt2jst(record[1]))} for record in orig_records]
+    records = [{
+        'name': record[0],
+        'timestamp': str(gmt2jst(record[1])) if record[1] else 'None'
+    } for record in orig_records]
     return JSONResponse(jsonable_encoder(records))
 
 
