@@ -120,12 +120,22 @@ def update_return_message(dev_name: str, return_message: str):
 
 
 def register_device(dev_name: str, has_gpu: bool, return_message: Optional[str]):
-    order = """
+    order_d = """
     INSERT INTO public.devices (device_name, has_gpu, return_message) VALUES
            (%s, %s, %s);
+    """
+    order_gm = """
+    INSERT INTO public.gpu_machines (machine_id) VALUES
+           ((
+           SELECT device_id
+             FROM devices
+            WHERE device_name = %s
+           ));
     """
 
     with psycopg2.connect(DATABASE) as sess:
         with sess.cursor() as cur:
-            cur.execute(order, (dev_name, has_gpu, return_message))
+            cur.execute(order_d, (dev_name, has_gpu, return_message))
+            if has_gpu:
+                cur.execute(order_gm, dev_name)
         sess.commit()
