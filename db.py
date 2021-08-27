@@ -12,7 +12,7 @@ def select_device_last_heatbeat() -> List[Tuple]:
     :return: list of (device_name, timestamp)
     """
     order = """
-    SELECT device_name, last_heatbeat
+    SELECT device_name, last_heartbeat
       FROM devices
      ORDER BY device_name asc;
     """

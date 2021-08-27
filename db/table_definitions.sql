@@ -6,7 +6,7 @@
 CREATE TABLE public.devices (
 	device_id SERIAL NOT NULL,
 	device_name VARCHAR(32) NOT NULL,
-	last_heatbeat TIMESTAMP(0) NULL,
+	last_heartbeat TIMESTAMP(0) NULL,
 	return_message VARCHAR(4096) NULL,
 	has_gpu bool NOT NULL,
 	CONSTRAINT devices_pk PRIMARY KEY (device_id),
