@@ -57,12 +57,10 @@ def api_heartbeat(
     if not verify_password(password, hashed_pw):  # check credential
         return PlainTextResponse(content='invalid password\n', status_code=403)
 
-    if name not in db.select_device_names():
+    try:
+        db.post_heartbeat(name, nvidia_smi)
+    except ValueError:
         return PlainTextResponse(content='invalid name\n', status_code=400)
-
-    db.post_heartbeat(name)
-    if nvidia_smi is not None:
-        db.post_gpu_info(name, nvidia_smi)
 
     return PlainTextResponse(
         content=db.select_return_message(name) or 'successfully posted\n',
