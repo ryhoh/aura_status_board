@@ -48,10 +48,10 @@ const hb_signals_component = {
       const minutes = Math.trunc(total_seconds % 3600 / 60);
       const seconds = Math.trunc(total_seconds % 60);
 
-      let res = `${seconds}秒`;
-      if (minutes) res = `${minutes}分 ` + res;
-      if (hours) res = `${hours}時間 ` + res;
-      if (days) res = `${days}日 `;  // 24時間以上は日数だけ表示
+      let res = `${seconds}s`;
+      if (minutes) res = `${minutes}m ` + res;
+      if (hours) res = `${hours}h ` + res;
+      if (days) res = `${days}day(s)`;  // 24時間以上は日数だけ表示
       return res;
     },
     date2readable: (date) =>

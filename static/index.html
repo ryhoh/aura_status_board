@@ -17,7 +17,7 @@
       <nav>
         <ul>
           <li><router-link to="/">Signals</router-link></li>
-          <li><router-link to="/gpgpus_info">GPGPUs Info</router-link></li>
+          <li><router-link to="/gpgpus_info">GPGPU Info</router-link></li>
           <li><router-link to="/whats_this">What's This?</router-link></li>
         </ul>
       </nav>
@@ -49,9 +49,9 @@
       <div v-show="!loading">
         <table>
           <tr>
-            <th class="name">System name</th>
-            <th class="datetime">Last signal (JST)</th>
-            <th class="time">Past time</th>
+            <th class="name">Device Name</th>
+            <th class="datetime">Last Signal (JST)</th>
+            <th class="time">Elapsed Time</th>
           </tr>
           <tr v-for="(record, idx) in last_signal_ts" :key="record.name" v-bind:class="'bg' + idx % 2">
             <td class="name">{{ record.name }}</td>
@@ -70,7 +70,7 @@
 
   <script type="text/x-template" id="gpgpus-info">
     <div>
-      <h2>GPGPUs Info</h2>
+      <h2>GPGPU Info</h2>
       <div v-show="errored">
         <p class="warn">
           Connection with the server has lost...
