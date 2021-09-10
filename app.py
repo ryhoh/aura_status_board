@@ -68,7 +68,7 @@ def api_heartbeat(
     )
 
 @app.post('/api/return_message')
-def api_return_message(
+def api_register_return_message(
     password: str = Form(...),
     name: str = Form(...),
     return_message: str = Form(...)
@@ -77,6 +77,7 @@ def api_return_message(
         return PlainTextResponse(content='invalid password\n', status_code=403)
 
     db.update_return_message(name, return_message)
+    return PlainTextResponse('successfully registered\n', status_code=200)
 
 
 @app.post('/api/register/device')
