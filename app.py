@@ -1,17 +1,21 @@
 import datetime
-from typing import Optional
+from datetime import timedelta
+from typing import Optional, Union
 
-from fastapi import FastAPI, Form
+from fastapi import Depends, FastAPI, Form, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 import uvicorn
 
 import db
+import user_authorization as user_auth
 
 
-hashed_pw = b'$2b$12$3jMfq3IMzFOzJ.LqXiaelOBKbU4A7n.LyBKNAR39lTyKF44WcPscK'
+hashed_api_password = b'$2b$12$3jMfq3IMzFOzJ.LqXiaelOBKbU4A7n.LyBKNAR39lTyKF44WcPscK'
+# hashed_web_password = b'$2b$12$uWqI2KUFmu9j.FBetR0HGOiXYLeeTNWrlBq0skxYi2iHChhm35vT.'
 pw_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 app = FastAPI()
@@ -54,7 +58,7 @@ def api_heartbeat(
     name: str = Form(...),
     nvidia_smi: Optional[str] = Form(None)
 ):
-    if not verify_password(password, hashed_pw):  # check credential
+    if not verify_password(password, hashed_api_password):  # check credential
         return PlainTextResponse(content='invalid password\n', status_code=403)
 
     try:
@@ -73,7 +77,7 @@ def api_register_return_message(
     name: str = Form(...),
     return_message: str = Form(...)
 ):
-    if not verify_password(password, hashed_pw):  # check credential
+    if not verify_password(password, hashed_api_password):  # check credential
         return PlainTextResponse(content='invalid password\n', status_code=403)
 
     db.update_return_message(name, return_message)
@@ -87,11 +91,31 @@ def api_register_device(
     has_gpu: Optional[str] = Form(None),
     return_message: Optional[str] = Form(None)
 ):
-    if not verify_password(password, hashed_pw):  # check credential
+    if not verify_password(password, hashed_api_password):  # check credential
         return PlainTextResponse(content='invalid password\n', status_code=403)
 
     db.register_device(name, (has_gpu is not None), return_message)
     return PlainTextResponse('successfully registered\n', status_code=200)
+
+
+@app.post('/api/token')
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    user: Union[user_auth.UserInDB, bool] = user_auth.authenticate_user(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=user_auth.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = user_auth.create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+    }
 
 
 if __name__ == '__main__':

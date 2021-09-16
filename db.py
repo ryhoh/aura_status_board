@@ -8,6 +8,41 @@ from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
 DATABASE = os.environ.get('DATABASE_URL') or 'postgresql://web:web@localhost:5432/status_board'
 
 
+def read_JWT_secret() -> str:
+    """
+    Read JWT secret
+
+    :return: JWT secret
+    """
+    with psycopg2.connect(DATABASE) as conn:
+        with conn.cursor() as cur:
+            cur.execute("select secret from jwt;")
+            res: List[str] = cur.fetchone()
+            return res[0]
+
+
+def read_password_from_users(name: str) -> bytes:
+    """
+    Read user's password
+
+    :return: Hashed password if user exists.
+    """
+
+    SQL = """
+    SELECT hashed_password
+      FROM users
+     WHERE user_name = %s;
+    """
+
+    with psycopg2.connect(DATABASE) as conn:
+        with conn.cursor() as cur:
+            cur.execute(SQL, (name,))
+            res = cur.fetchone()
+            if res is None:
+                raise ValueError("User not exist:", name)
+            return res[0].tobytes()
+
+
 def select_device_last_heatbeat() -> List[Tuple]:
     """
     :return: list of (device_name, timestamp)
