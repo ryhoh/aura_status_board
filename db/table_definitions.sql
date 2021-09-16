@@ -26,7 +26,7 @@ CREATE TABLE public.gpu_machines (
 -- Data Insertion
 --------------------
 
-INSERT INTO public.devices (device_name,last_heatbeat,has_gpu) VALUES
+INSERT INTO public.devices (device_name,last_heartbeat,has_gpu) VALUES
 	('takenaka_dl',current_timestamp,true),
 	('SMC101',current_timestamp,false),
 	('AGP092',current_timestamp,true),
