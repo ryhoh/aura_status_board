@@ -1,1 +1,3 @@
-# aura_status_board
+# Machine-Hub
+
+A system for managing devices via WebAPI.
