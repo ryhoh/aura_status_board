@@ -1,6 +1,5 @@
-import datetime
 from datetime import timedelta
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from fastapi import Depends, FastAPI, Form, HTTPException, status
 from fastapi.encoders import jsonable_encoder
@@ -11,38 +10,25 @@ from passlib.context import CryptContext
 import uvicorn
 
 import db
+from db import Device
 import user_authorization as user_auth
 
 
 hashed_api_password = b'$2b$12$3jMfq3IMzFOzJ.LqXiaelOBKbU4A7n.LyBKNAR39lTyKF44WcPscK'
-# hashed_web_password = b'$2b$12$uWqI2KUFmu9j.FBetR0HGOiXYLeeTNWrlBq0skxYi2iHChhm35vT.'
 pw_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-
-def gmt2jst(dt: datetime.datetime):
-    return dt.astimezone(datetime.timezone(datetime.timedelta(hours=+9)))
-
-
-def verify_password(plain_password: str, hashed_password: bytes):
-    return pw_context.verify(plain_password, hashed_password)
-
 
 @app.get('/')
 async def root():
     return FileResponse('static/index.html')
 
 
-@app.get('/json/last_signal_ts')
+@app.get('/json/signals')
 def json_last_signal_ts():
-    orig_records = db.select_device_last_heatbeat()
-    records = [{
-        'name': record[0],
-        'timestamp': str(gmt2jst(record[1])) if record[1] else 'None'
-    } for record in orig_records]
-    return JSONResponse(jsonable_encoder(records))
+    devices: List[Device] = db.select_devices()
+    return JSONResponse(jsonable_encoder([device.dict() for device in devices]))
 
 
 @app.get('/json/last_gpu_info')
@@ -58,7 +44,7 @@ def api_heartbeat(
     name: str = Form(...),
     nvidia_smi: Optional[str] = Form(None)
 ):
-    if not verify_password(password, hashed_api_password):  # check credential
+    if not pw_context.verify(password, hashed_api_password):  # check credential
         return PlainTextResponse(content='invalid password\n', status_code=403)
 
     try:
@@ -77,7 +63,7 @@ def api_register_return_message(
     name: str = Form(...),
     return_message: str = Form(...)
 ):
-    if not verify_password(password, hashed_api_password):  # check credential
+    if not pw_context.verify(password, hashed_api_password):  # check credential
         return PlainTextResponse(content='invalid password\n', status_code=403)
 
     db.update_return_message(name, return_message)
@@ -91,7 +77,7 @@ def api_register_device(
     has_gpu: Optional[str] = Form(None),
     return_message: Optional[str] = Form(None)
 ):
-    if not verify_password(password, hashed_api_password):  # check credential
+    if not pw_context.verify(password, hashed_api_password):  # check credential
         return PlainTextResponse(content='invalid password\n', status_code=403)
 
     db.register_device(name, (has_gpu is not None), return_message)

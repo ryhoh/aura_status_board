@@ -11,6 +11,7 @@
 </head>
 <body>
   <div id="vue_app">
+    <!-- Header -->
     <header>
       <h1>Rycery Machine-Hub</h1>
       <span class="aura_tile"></span>
@@ -18,10 +19,27 @@
         <ul>
           <li><router-link to="/">Signals</router-link></li>
           <li><router-link to="/gpgpus_info">GPGPU Info</router-link></li>
+          <li><router-link to="/return_message">Return Msg</router-link></li>
           <li><router-link to="/whats_this">What's This?</router-link></li>
         </ul>
       </nav>
+
+      <!-- Login Form or Username -->
+      <div class="login_form" v-if="token !== null && token.hasOwnProperty('access_token')">
+        Manager: {{ user.username }}
+      </div>
+      <div class="login_form" v-else>
+        <form>
+          <input type="text" placeholder="username" v-model="user.username">
+          <input type="password" placeholder="password" v-model="user.password">
+          <a v-on:click="loginProcedure" v-bind:disabled="token !== null && token.accessing !== null">Login to Manege</a>
+        </form>
+        <span v-if="token !== null && token.msg !== null" v-bind:class="{ warn : token.hasOwnProperty('error') }">{{ token.msg }}</span>
+      </div>
+      <!-- User End -->
+
     </header>
+    <!-- Header End -->
     <article>
       <router-view></router-view>
     </article>
@@ -33,6 +51,7 @@
     ryhoh, 2020-.
   </footer>
 
+  <!-- HeartBeat Signals -->
   <script type="text/x-template" id="hb-signals">
     <div>
       <h2>Heartbeat Signals</h2>
@@ -52,9 +71,10 @@
             <th class="name">Device Name</th>
             <th class="datetime">Last Signal (JST)</th>
             <th class="time">Elapsed Time</th>
+            <!-- <th class="return_message">Return Message</th> -->
           </tr>
           <tr v-for="(record, idx) in last_signal_ts" :key="record.name" v-bind:class="'bg' + idx % 2">
-            <td class="name">{{ record.name }}</td>
+            <td class="name">{{ record.device_name }}</td>
             <td class="datetime">{{ record.timestamp | date2readable }}</td>
 
             <td class="time">
@@ -62,12 +82,19 @@
                 {{ getPastSeconds(idx) | secondsDiff2Readable }}
               </span>
             </td>
+<!-- 
+            <td class="return_message">
+              <div class="no_break_line">
+                {{ record.return_message }}
+              </div>
+            </td> -->
           </tr>
         </table>
       </div>
     </div>
   </script>
 
+  <!-- GPGPU -->
   <script type="text/x-template" id="gpgpus-info">
     <div>
       <h2>GPGPU Info</h2>
@@ -90,6 +117,39 @@
     </div>
   </script>
 
+  <!-- Return Message -->
+  <script type="text/x-template" id="return-message">
+    <div>
+      <h2>Return Message</h2>
+      <div v-show="errored">
+        <p class="warn">
+          Connection with the server has lost...
+        </p>
+      </div>
+      <div v-show="loading">
+        <p>
+          Loading...
+        </p>
+      </div>
+      <div v-for="(record, idx) in last_signal_ts" :key="record.device_name" v-show="!loading">
+        <h3>{{ record.device_name }}</h3>
+        <blockquote>
+          <p class="code" style="white-space: pre">{{ record.return_message | arrangeReturnMessage }}</p>
+        </blockquote>
+      </div>
+
+      <span class="p_bar_1"></span>
+      <div class="box_container">
+        <span class="p_bar_2 box"></span>
+        <p class="box"></p>
+        <p class="box p_bar_main">
+          Note: Message starting with # is special message.<br>
+        </p>
+      </div>
+    </div>
+  </script>
+
+  <!-- Description -->
   <script type="text/x-template" id="whats-this">
     <div>
       <h2>What's This?</h2>

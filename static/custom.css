@@ -1,17 +1,35 @@
-th.name {
-  width: 20em;
+table {
+  table-layout: fixed;
 }
 
-th.datetime {
-  width: 12em;
-}
-
-th.time {
+th, td {
   width: 12em;
 }
 
 .datetime, .time {
   text-align: center;
+}
+
+.no_break_line {
+  white-space: nowrap;
+  overflow: hidden;
+  width: 12em;
+  margin-right: 0;
+}
+
+.login_form {
+  display: inline-block;
+  background-color: var(--bg-color-1);
+  border-radius: 8px;
+  padding: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.login_form a {
+  color: #333;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 nav {
@@ -20,6 +38,7 @@ nav {
 
 nav ul {
   margin: 0;
+  margin-bottom: 10px;
   padding: 0;
 }
 
@@ -46,7 +65,7 @@ nav a.current {
   border-bottom: 2px solid #00B0F0;
 }
 
-nav a:hover {
+nav a:hover, header a:hover {
   color: #F7CB4D;
   border-bottom: 2px solid #F7CB4D;
 }

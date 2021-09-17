@@ -1,38 +1,38 @@
 const str2Date = (unix_time) => (new Date(unix_time));
 const secondsFromNow = (date) => Math.trunc((Date.now() - date) / 1000);
-const update_signals = function() {  // signal 記録を Ajax で更新
+
+const updateSignals = function() {  // signal 記録を Ajax で更新
   axios
-    .get('/json/last_signal_ts')
+    .get('/json/signals')
     .then(response => {
       this.last_signal_ts = response.data;
       this.last_signal_ts.forEach((item, i) => {
-        item.timestamp = str2Date(item.timestamp);
+        item.timestamp = str2Date(item.last_heartbeat_timestamp);
         item.past_seconds = secondsFromNow(item.timestamp);
       });
     })
     .catch(error => {
-      console.log(error);
+      console.error(error);
       this.errored = true;
     })
     .finally(() => this.loading = false);
 };
-const update_gpu_info = function() {  // gpu 記録を Ajax で更新
+
+const updateGpuInfo = function() {  // gpu 記録を Ajax で更新
   axios
     .get('/json/last_gpu_info')
     .then(response => {
       this.last_gpu_info = response.data;
     })
     .catch(error => {
-      console.log(error);
+      console.error(error);
       this.errored = true;
     })
     .finally(() => this.loading = false);
 };
 
 // Vue Router
-const hb_signals_component = {
-  template: '#hb-signals',
-
+const hbSignalsComponent = {
   data: () => ({
     last_signal_ts: null,
     loading: true,
@@ -54,9 +54,17 @@ const hb_signals_component = {
       if (days) res = `${days}day(s)`;  // 24時間以上は日数だけ表示
       return res;
     },
-    date2readable: (date) =>
-      `${date.getFullYear()}/${('0' + (date.getMonth() + 1)).slice(-2)}/${('0' + date.getDate()).slice(-2)} \
-      ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`,
+    date2readable: (date) => {
+      if (date === null)
+        return '-';
+      return `${date.getFullYear()}/${('0' + (date.getMonth() + 1)).slice(-2)}/${('0' + date.getDate()).slice(-2)} \
+        ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
+    },
+    arrangeReturnMessage: (message) => {
+      if (message === null)
+        return '# default';
+      return message;
+    },
   },
 
   computed: {
@@ -72,8 +80,8 @@ const hb_signals_component = {
   },
 
   mounted() {
-    setTimeout(update_signals.bind(this), 0);
-    this.ajax_interval = setInterval(update_signals.bind(this), 300000);  // 5 minutes
+    setTimeout(updateSignals.bind(this), 0);
+    this.ajax_interval = setInterval(updateSignals.bind(this), 300000);  // 5 minutes
 
     this.update_interval = setInterval((function() {  // 経過時間を1秒ごとに更新
       this.last_signal_ts.forEach((item, i) => {
@@ -91,7 +99,7 @@ const hb_signals_component = {
   },
 };
 
-const gpgpus_info_component = {
+const gpgpusInfoComponent = {
   template: '#gpgpus-info',
 
   data: () => ({
@@ -102,8 +110,8 @@ const gpgpus_info_component = {
   }),
 
   mounted() {
-    setTimeout(update_gpu_info.bind(this), 0);
-    this.ajax_interval = setInterval(update_gpu_info.bind(this), 300000);  // 5 minutes
+    setTimeout(updateGpuInfo.bind(this), 0);
+    this.ajax_interval = setInterval(updateGpuInfo.bind(this), 300000);  // 5 minutes
   },
 
   destroyed() {
@@ -111,15 +119,29 @@ const gpgpus_info_component = {
   },
 };
 
+const returnMessageComponent = {
+  template: '#return-message',
+}
+
 const router = new VueRouter({
   routes: [
     {
       path: '/',
-      component: hb_signals_component,
+      component: {
+        template: '#hb-signals',
+        ...hbSignalsComponent,
+      },
     },
     {
       path: '/gpgpus_info',
-      component: gpgpus_info_component,
+      component: gpgpusInfoComponent,
+    },
+    {
+      path: '/return_message',
+      component: {
+        template: '#return-message',
+        ...hbSignalsComponent,
+      },
     },
     {
       path: '/whats_this',
@@ -133,5 +155,51 @@ const router = new VueRouter({
 // Vue.js
 const vm = new Vue({
   el: '#vue_app',
+
+  data: () => ({
+    token: {},
+    user: {
+      username: '',
+      password: '',
+    },
+  }),
+
+  methods: {
+    loginProcedure: function() {
+      this.token = {
+        msg: 'Processing...',
+        accessing: true,
+      };
+
+      const params = new URLSearchParams();
+      params.append('username', this.user.username);
+      params.append('password', this.user.password);
+
+      axios
+        .post('/api/token', params)
+        .then(response => {
+          this.token = response.data;
+          localStorage.setItem('user_username', this.user.username);
+          localStorage.setItem('token_access_token', this.token.access_token);
+          localStorage.setItem('token_token_type', this.token.token_type);
+        })
+        .catch(error => {
+          console.error(error);
+          this.token = {
+            msg: 'Login failed.',
+            error: true,
+          };
+        });
+    },
+  },
+
+  mounted() {
+    if (localStorage.length > 0) {
+        if (localStorage.getItem('user_username')) this.user.username = localStorage.getItem('user_username');
+        if (localStorage.getItem('token_access_token')) this.token.access_token = localStorage.getItem('token_access_token');
+        if (localStorage.getItem('token_token_type')) this.token.token_type = localStorage.getItem('token_token_type');
+    }
+},
+
   router: router,
 });

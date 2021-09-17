@@ -1,11 +1,24 @@
+import datetime
 import os
 from typing import List, Optional, Set, Tuple
 
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
+from pydantic import BaseModel
 
 
 DATABASE = os.environ.get('DATABASE_URL') or 'postgresql://web:web@localhost:5432/status_board'
+
+
+def gmt2jst(dt: datetime.datetime):
+    return dt.astimezone(datetime.timezone(datetime.timedelta(hours=+9)))
+
+
+class Device(BaseModel):
+    device_name: str
+    last_heartbeat_timestamp: str
+    return_message: Optional[str]
+    has_gpu: bool
 
 
 def read_JWT_secret() -> str:
@@ -43,22 +56,27 @@ def read_password_from_users(name: str) -> bytes:
             return res[0].tobytes()
 
 
-def select_device_last_heatbeat() -> List[Tuple]:
+def select_devices() -> List[Device]:
     """
-    :return: list of (device_name, timestamp)
+    :return: list of Device
     """
     SQL = """
-    SELECT device_name, last_heartbeat
+    SELECT device_name, last_heartbeat, return_message, has_gpu
       FROM devices
-     ORDER BY device_name asc;
+     ORDER BY device_name asc;  -- this sort should be in javascript
     """
 
     with psycopg2.connect(DATABASE) as sess:
         sess.isolation_level = ISOLATION_LEVEL_READ_COMMITTED
         with sess.cursor() as cur:
             cur.execute(SQL)
-            res = cur.fetchall()
-    return res
+            res: List[Tuple] = cur.fetchall()
+    return [Device(**{
+        'device_name': tp[0],
+        'last_heartbeat_timestamp': str(gmt2jst(tp[1])) if tp[1] else 'None',
+        'return_message': tp[2],
+        'has_gpu': tp[3],
+    }) for tp in res]
 
 
 def select_return_message(dev_name: str) -> str:
