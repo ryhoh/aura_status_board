@@ -73,3 +73,23 @@ nav a:hover, header a:hover {
   color: #F7CB4D;
   border-bottom: 2px solid #F7CB4D;
 }
+
+.h_before_icon {
+  display: inline;
+  margin-right: 4px;
+}
+
+.icon {
+  width: 16px;
+}
+
+.input_for_blockquote {
+  width: 80%;
+  max-width: 80%;
+  min-width: 40%;
+  min-height: 10px;
+  margin-left: 40px;
+  margin-right: 40px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}

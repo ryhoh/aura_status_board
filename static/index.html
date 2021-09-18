@@ -78,7 +78,7 @@
             <td class="datetime">{{ record.timestamp | date2readable }}</td>
 
             <td class="time">
-              <span v-bind:class="IsOver1Day(getPastSeconds(idx))">
+              <span v-bind:class="isOver1Day(getPastSeconds(idx))">
                 {{ getPastSeconds(idx) | secondsDiff2Readable }}
               </span>
             </td>
@@ -132,8 +132,16 @@
         </p>
       </div>
       <div v-for="(record, idx) in last_signal_ts" :key="record.device_name" v-show="!loading">
-        <h3>{{ record.device_name }}</h3>
-        <blockquote>
+        <div style="display: inline-block;">
+          <h3 class="h_before_icon">{{ record.device_name }}</h3>
+          <img src="static/icons/edit.png" class="icon" v-if="vm.token.hasOwnProperty('access_token') && editing_device_idx !== idx" v-on:click="toggleReturnMsgEditor(idx)">
+          <img src="static/icons/check.png" class="icon" v-if="vm.token.hasOwnProperty('access_token') && editing_device_idx === idx" v-on:click="toggleReturnMsgEditor(idx)">
+        </div>
+
+        <form v-if="editing_device_idx === idx">
+          <textarea type="text" class="input_for_blockquote" v-model="editing_text_area"></textarea>
+        </form>
+        <blockquote v-else>
           <p class="code" style="white-space: pre">{{ record.return_message | arrangeReturnMessage }}</p>
         </blockquote>
       </div>

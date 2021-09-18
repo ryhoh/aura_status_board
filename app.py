@@ -59,12 +59,20 @@ def api_heartbeat(
 
 @app.post('/api/return_message')
 def api_register_return_message(
-    password: str = Form(...),
+    user: user_auth.UserInDB = Depends(user_auth.get_current_user),
     name: str = Form(...),
     return_message: str = Form(...)
 ):
-    if not pw_context.verify(password, hashed_api_password):  # check credential
-        return PlainTextResponse(content='invalid password\n', status_code=403)
+    if not user:  # User authorization
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Process Special str
+    if return_message == '#empty':
+        return_message = ''
 
     db.update_return_message(name, return_message)
     return PlainTextResponse('successfully registered\n', status_code=200)

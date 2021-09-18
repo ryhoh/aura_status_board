@@ -37,7 +37,7 @@ CREATE TABLE public.users (
 INSERT INTO public.devices (device_name,last_heartbeat,has_gpu,return_message) VALUES
 	('takenaka_dl',current_timestamp,true,NULL),
 	('SMC101',current_timestamp,false,'Hello SMC!'),
-	('AGP092',current_timestamp,true,NULL),
+	('AGP092',current_timestamp,true,'Loooooooooooooong message!'),
 	('AGP093','2021-03-12 23:30:25',false,NULL);
 
 INSERT INTO public.gpu_machines (machine_id,last_detail) VALUES
