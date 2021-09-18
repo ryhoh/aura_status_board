@@ -9,8 +9,6 @@ const getSignals = function() {  // signal 記録を Ajax で更新
       this.last_signal_ts.forEach((item, i) => {
         item.timestamp = str2Date(item.last_heartbeat_timestamp);
         item.past_seconds = secondsFromNow(item.timestamp);
-        if (item.return_message === null)
-          item.return_message = '';
       });
     })
     .catch(error => {
@@ -36,7 +34,7 @@ const getGpuInfo = function() {  // gpu 記録を Ajax で更新
 const updateReturnMessage = function(device_name, return_message, access_token) {
   const params = new URLSearchParams();
   params.append('name', device_name);
-  params.append('return_message', return_message !== '' ? return_message : '#empty');
+  params.append('return_message', return_message);
 
   axios
     .post('/api/return_message', params, {
@@ -141,14 +139,6 @@ const returnMessageComponent = {
     editing_device_idx: null,
     editing_text_area: null,
   }),
-
-  filters: {
-    arrangeReturnMessage: (message) => {
-      if (message === '')
-        return '#empty';
-      return message;
-    },
-  },
 
   methods: {
     toggleReturnMsgEditor: function (device_idx) {

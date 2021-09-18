@@ -17,7 +17,7 @@ def gmt2jst(dt: datetime.datetime):
 class Device(BaseModel):
     device_name: str
     last_heartbeat_timestamp: str
-    return_message: Optional[str]
+    return_message: str
     has_gpu: bool
 
 

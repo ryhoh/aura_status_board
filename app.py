@@ -88,7 +88,11 @@ def api_register_device(
     if not pw_context.verify(password, hashed_api_password):  # check credential
         return PlainTextResponse(content='invalid password\n', status_code=403)
 
-    db.register_device(name, (has_gpu is not None), return_message)
+    db.register_device(
+        name,
+        (has_gpu is not None and has_gpu.upper() != 'FALSE'),
+        return_message,
+    )
     return PlainTextResponse('successfully registered\n', status_code=200)
 
 

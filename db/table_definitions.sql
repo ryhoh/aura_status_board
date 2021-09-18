@@ -6,7 +6,7 @@ CREATE TABLE public.devices (
 	device_id SERIAL NOT NULL,
 	device_name VARCHAR(32) NOT NULL,
 	last_heartbeat TIMESTAMP(0) NULL,
-	return_message VARCHAR(4096) NULL,
+	return_message VARCHAR(4096) NOT NULL,
 	has_gpu bool NOT NULL,
 	CONSTRAINT devices_pk PRIMARY KEY (device_id),
 	CONSTRAINT devices_un UNIQUE (device_name)
@@ -35,10 +35,10 @@ CREATE TABLE public.users (
 --------------------
 
 INSERT INTO public.devices (device_name,last_heartbeat,has_gpu,return_message) VALUES
-	('takenaka_dl',current_timestamp,true,NULL),
+	('takenaka_dl',current_timestamp,true,''),
 	('SMC101',current_timestamp,false,'Hello SMC!'),
 	('AGP092',current_timestamp,true,'Loooooooooooooong message!'),
-	('AGP093','2021-03-12 23:30:25',false,NULL);
+	('AGP093','2021-03-12 23:30:25',false,'');
 
 INSERT INTO public.gpu_machines (machine_id,last_detail) VALUES
 	(1,'testtesttest'),
