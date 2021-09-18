@@ -11,6 +11,7 @@ import uvicorn
 
 import db
 from db import Device
+from pipeline import Pipeline
 import user_authorization as user_auth
 
 
@@ -53,7 +54,7 @@ def api_heartbeat(
         return PlainTextResponse(content='invalid name\n', status_code=400)
 
     return PlainTextResponse(
-        content=db.select_return_message(name) or 'successfully posted\n',
+        content=Pipeline.feed(db.select_return_message(name)),
         status_code=200
     )
 
