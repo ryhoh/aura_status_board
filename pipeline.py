@@ -26,8 +26,7 @@ def alive_device_n() -> str:
     return str(
         sum(
             dt.datetime.now(tz=dt.timezone(offset=dt.timedelta(hours=9)))
-            - dt.datetime.strptime(
-                device.last_heartbeat_timestamp, '%Y-%m-%d %H:%M:%S%z')
+            - device.last_heartbeat_timestamp
             < dt.timedelta(hours=24)
             for device in devices
         )

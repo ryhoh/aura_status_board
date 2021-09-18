@@ -29,7 +29,10 @@ async def root():
 @app.get('/json/signals')
 def json_last_signal_ts():
     devices: List[Device] = db.select_devices()
-    return JSONResponse(jsonable_encoder([device.dict() for device in devices]))
+    devices = [device.dict() for device in devices]
+    for device in devices:
+        device['last_heartbeat_timestamp'] = str(device['last_heartbeat_timestamp'])
+    return JSONResponse(jsonable_encoder(devices))
 
 
 @app.get('/json/last_gpu_info')

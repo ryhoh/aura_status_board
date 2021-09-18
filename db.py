@@ -16,7 +16,7 @@ def gmt2jst(dt: datetime.datetime):
 
 class Device(BaseModel):
     device_name: str
-    last_heartbeat_timestamp: str
+    last_heartbeat_timestamp: datetime.datetime
     return_message: str
     has_gpu: bool
 
@@ -73,7 +73,7 @@ def select_devices() -> List[Device]:
             res: List[Tuple] = cur.fetchall()
     return [Device(**{
         'device_name': tp[0],
-        'last_heartbeat_timestamp': str(gmt2jst(tp[1])) if tp[1] else 'None',
+        'last_heartbeat_timestamp': gmt2jst(tp[1]),
         'return_message': tp[2],
         'has_gpu': tp[3],
     }) for tp in res]
