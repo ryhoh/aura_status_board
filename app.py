@@ -11,7 +11,7 @@ import uvicorn
 
 import db
 from db import Device
-from pipeline import Pipeline
+from pipeline import CommandError, Pipeline
 import user_authorization as user_auth
 
 
@@ -52,9 +52,15 @@ def api_heartbeat(
         db.post_heartbeat(name, nvidia_smi)
     except ValueError:
         return PlainTextResponse(content='invalid name\n', status_code=400)
+    
+    return_message = db.select_return_message(name)
+    try:
+        content = Pipeline.feed(return_message)
+    except CommandError:
+        content = return_message
 
     return PlainTextResponse(
-        content=Pipeline.feed(db.select_return_message(name)),
+        content=content,
         status_code=200
     )
 
