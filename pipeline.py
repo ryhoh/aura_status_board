@@ -123,6 +123,17 @@ class PlainText(Token):
 Pileline core object
 
 """
+def replace_escape(text: str) -> str:
+    d_bksl_idx = text.find('\\\\')  # means \\
+    hash_idx = text.find('\\#')  # means \#
+
+    if -1 < d_bksl_idx < hash_idx:
+        return text[: d_bksl_idx] + '\\' + replace_escape(text[d_bksl_idx + 2:])
+    if -1 < hash_idx:
+        return text[: hash_idx] + '#' + replace_escape(text[hash_idx + 2:])
+    return text
+
+
 class Pipeline:
     @staticmethod
     def parse(text: str) -> Symbol:
@@ -130,27 +141,32 @@ class Pipeline:
         begin_idx = 0
         left_parenthesis_idx = None
         is_cmd = False
+        escaped = False
         for idx, c in enumerate(text):
-            if c == '#':  # Begining of Command
+            if c == '\\':
+                escaped = not escaped
+            elif c == '#' and not escaped:  # Begining of Command
                 if idx != 0:
-                    res.append(PlainText(text[begin_idx: idx]))
+                    res.append(PlainText(replace_escape(text[begin_idx: idx])))
                 begin_idx = idx
                 is_cmd = True
-            if c == '(' and is_cmd:
+            elif c == '(' and is_cmd:
                 left_parenthesis_idx = idx
-            if c == ')' and left_parenthesis_idx is not None:
+            elif c == ')' and left_parenthesis_idx is not None:
                 res.append(
                     Command(
-                        name=text[begin_idx + 1: left_parenthesis_idx],
-                        message=Pipeline.parse(text[left_parenthesis_idx + 1: idx])
+                        name=replace_escape(text[begin_idx + 1: left_parenthesis_idx]),
+                        message=Pipeline.parse(replace_escape(text[left_parenthesis_idx + 1: idx]))
                     )
                 )
                 begin_idx = idx + 1
                 left_parenthesis_idx = None
                 is_cmd = False
+            else:
+                escaped = False
         
         if begin_idx != len(text):
-            res.append(PlainText(text[begin_idx:]))
+            res.append(PlainText(replace_escape(text[begin_idx:])))
 
         return Message(tokens=res)
 

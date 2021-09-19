@@ -16,6 +16,14 @@ class TestPipeline(unittest.TestCase):
             ])
         )
 
+    def test_parse_escaped(self):
+        self.assertEqual(
+            Pipeline.parse('\\\\\\#\\#Hello\\\\world!\\#\\#'),  # means '\\\#\#Hello\\world!\#\#'
+            Message(tokens=[
+                PlainText(name='\\##Hello\\world!##')  # means '\##Hello\world!##'
+            ])
+        )
+
     # def test_parse_command(self):
     #     self.assertEqual(
     #         Pipeline.parse('#ident(AGP092)'),
@@ -29,8 +37,6 @@ class TestPipeline(unittest.TestCase):
     #     )
 
     def test_parse_mix(self):
-        print(repr(Pipeline.parse('Alive Device: #alives() / #devices()')))
-
         self.assertEqual(
             Pipeline.parse('Alive Device: #alives() / #devices()'),
             Message([
@@ -58,6 +64,16 @@ class TestPipeline(unittest.TestCase):
                 ])
             ),
             'Hello!'
+        )
+
+    def test_str_escaped(self):
+        self.assertEqual(
+            str(
+                Message(tokens=[
+                    PlainText(name='\\##Hello\\world!##')  # means '\##Hello\world!##'
+                ])
+            ),
+            '\\##Hello\\world!##'  # means '\##Hello\world!##'
         )
 
     # def test_str_command(self):
@@ -104,6 +120,12 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(
             Pipeline.feed('Hello!'),
             'Hello!'
+        )
+
+    def test_feed_escaped(self):
+        self.assertEqual(
+            Pipeline.feed('\\\\\\#\\#Hello\\\\world!\\#\\#'),  # means '\\\#\#Hello\\world!\#\#'
+            '\\##Hello\\world!##'  # means '\##Hello\world!##'
         )
 
     def test_feed_mix(self):
