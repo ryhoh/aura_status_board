@@ -109,19 +109,19 @@ const hbSignalsComponent = {
   },
 };
 
-const gpgpusInfoComponent = {
-  template: '#gpgpus-info',
+const reportComponent = {
+  template: '#reports',
 
   data: () => ({
-    last_gpu_info: null,
+    last_signal_ts: null,
     ajax_interval: null,
     loading: true,
     errored: false,
   }),
 
   mounted() {
-    setTimeout(getGpuInfo.bind(this), 0);
-    this.ajax_interval = setInterval(getGpuInfo.bind(this), 300000);  // 5 minutes
+    setTimeout(getSignals.bind(this), 0);
+    this.ajax_interval = setInterval(getSignals.bind(this), 300000);  // 5 minutes
   },
 
   destroyed() {
@@ -187,8 +187,8 @@ const router = new VueRouter({
       },
     },
     {
-      path: '/gpgpus_info',
-      component: gpgpusInfoComponent,
+      path: '/reports',
+      component: reportComponent,
     },
     {
       path: '/return_message',

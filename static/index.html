@@ -18,7 +18,7 @@
       <nav>
         <ul>
           <li><router-link to="/">Signals</router-link></li>
-          <li><router-link to="/gpgpus_info">GPGPU Info</router-link></li>
+          <li><router-link to="/reports">Reports</router-link></li>
           <li><router-link to="/return_message">Return Msg</router-link></li>
           <li><router-link to="/whats_this">What's This?</router-link></li>
         </ul>
@@ -94,10 +94,10 @@
     </div>
   </script>
 
-  <!-- GPGPU -->
-  <script type="text/x-template" id="gpgpus-info">
+  <!-- Reports -->
+  <script type="text/x-template" id="reports">
     <div>
-      <h2>GPGPU Info</h2>
+      <h2>Reports</h2>
       <div v-show="errored">
         <p class="warn">
           Connection with the server has lost...
@@ -108,10 +108,10 @@
           Loading...
         </p>
       </div>
-      <div v-for="(record, idx) in last_gpu_info" :key="record.name" v-show="!loading">
-        <h3>{{ record.name }}</h3>
+      <div v-for="(record, idx) in last_signal_ts" :key="record.device_name" v-show="!loading">
+        <h3>{{ record.device_name }}</h3>
         <blockquote>
-          <p class="code" style="white-space: pre">{{ record.detail }}</p>
+          <p class="code" style="white-space: pre">{{ record.report }}</p>
         </blockquote>
       </div>
     </div>

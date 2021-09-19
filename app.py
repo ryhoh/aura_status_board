@@ -35,13 +35,6 @@ def json_last_signal_ts():
     return JSONResponse(jsonable_encoder(devices))
 
 
-@app.get('/json/last_gpu_info')
-def json_last_gpu_info():
-    orig_gpu_info = db.select_device_last_detail()  # [(name, smi_text) ... ]
-    gpu_info = [{'name': record[0], 'detail': record[1]} for record in orig_gpu_info]
-    return JSONResponse(jsonable_encoder(gpu_info))
-
-
 @app.post('/api/heartbeat')
 def api_heartbeat(
     password: str = Form(...),
@@ -57,6 +50,31 @@ def api_heartbeat(
         return PlainTextResponse(content='invalid name\n', status_code=400)
     
     return_message = db.select_return_message(name)
+    try:
+        content = Pipeline.feed(return_message)
+    except CommandError:
+        content = return_message
+
+    return PlainTextResponse(
+        content=content,
+        status_code=200
+    )
+
+@app.post('/api/v2/heartbeat')
+def api_heartbeat(
+    password: str = Form(...),
+    device_name: str = Form(...),
+    report: Optional[str] = Form(None)
+):
+    if not pw_context.verify(password, hashed_api_password):  # check credential
+        return PlainTextResponse(content='invalid password\n', status_code=403)
+
+    try:
+        db.post_heartbeat(device_name, report)
+    except ValueError:
+        return PlainTextResponse(content='invalid name\n', status_code=400)
+    
+    return_message = db.select_return_message(device_name)
     try:
         content = Pipeline.feed(return_message)
     except CommandError:
@@ -91,16 +109,16 @@ def api_register_return_message(
 @app.post('/api/register/device')
 def api_register_device(
     password: str = Form(...),
-    name: str = Form(...),
-    has_gpu: Optional[str] = Form(None),
+    device_name: str = Form(...),
+    report: Optional[str] = Form(None),
     return_message: Optional[str] = Form(None)
 ):
     if not pw_context.verify(password, hashed_api_password):  # check credential
         return PlainTextResponse(content='invalid password\n', status_code=403)
 
     db.register_device(
-        name,
-        (has_gpu is not None and has_gpu.upper() != 'FALSE'),
+        device_name,
+        report,
         return_message,
     )
     return PlainTextResponse('successfully registered\n', status_code=200)

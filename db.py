@@ -17,8 +17,8 @@ def gmt2jst(dt: datetime.datetime):
 class Device(BaseModel):
     device_name: str
     last_heartbeat_timestamp: datetime.datetime
+    report: str
     return_message: str
-    has_gpu: bool
 
 
 def read_JWT_secret() -> str:
@@ -61,7 +61,7 @@ def select_devices() -> List[Device]:
     :return: list of Device
     """
     SQL = """
-    SELECT device_name, last_heartbeat, return_message, has_gpu
+    SELECT device_name, last_heartbeat, report, return_message
       FROM devices
      ORDER BY device_name asc;  -- this sort should be in javascript
     """
@@ -74,8 +74,8 @@ def select_devices() -> List[Device]:
     return [Device(**{
         'device_name': tp[0],
         'last_heartbeat_timestamp': gmt2jst(tp[1]),
-        'return_message': tp[2],
-        'has_gpu': tp[3],
+        'report': tp[2],
+        'return_message': tp[3],
     }) for tp in res]
 
 
@@ -97,16 +97,14 @@ def select_return_message(dev_name: str) -> str:
     return res[0]  # return single value
 
 
-def select_device_last_detail() -> List[Tuple]:
+def select_device_reports() -> List[Tuple]:
     """
-    :return: list of (device_name, last_detail)
+    :return: list of (device_name, report)
     """
     SQL = """
-    SELECT D.device_name, GM.last_detail
-      FROM gpu_machines GM
-     INNER JOIN devices D
-        ON GM.machine_id = D.device_id
-     ORDER BY D.device_name ASC;
+    SELECT device_name, report
+      FROM devices
+     ORDER BY device_name ASC;
     """
 
     with psycopg2.connect(DATABASE) as sess:
@@ -117,7 +115,7 @@ def select_device_last_detail() -> List[Tuple]:
     return res
 
 
-def post_heartbeat(dev_name: str, nvidia_smi: Optional[str]):
+def post_heartbeat(dev_name: str, report: Optional[str]):
     SQL1 = """
     SELECT device_name
       FROM devices;
@@ -125,18 +123,9 @@ def post_heartbeat(dev_name: str, nvidia_smi: Optional[str]):
 
     SQL2 = """
     UPDATE devices
-       SET last_heartbeat = current_timestamp
+       SET last_heartbeat = current_timestamp,
+           report = %s
      WHERE device_name = %s;
-    """
-
-    SQL3 = """
-    UPDATE gpu_machines
-       SET last_detail = %s
-     WHERE machine_id = (
-           SELECT device_id
-             FROM devices
-            WHERE device_name = %s AND has_gpu
-    );
     """
 
     with psycopg2.connect(DATABASE) as sess:
@@ -147,9 +136,7 @@ def post_heartbeat(dev_name: str, nvidia_smi: Optional[str]):
             if dev_name not in valid_devices:
                 raise ValueError('invalid device name')
             
-            cur.execute(SQL2, (dev_name,))
-            if nvidia_smi:
-                cur.execute(SQL3, (nvidia_smi, dev_name))
+            cur.execute(SQL2, (report if report is not None else '', dev_name))
         sess.commit()
 
 
@@ -167,25 +154,18 @@ def update_return_message(dev_name: str, return_message: str):
         sess.commit()
 
 
-def register_device(dev_name: str, has_gpu: bool, return_message: Optional[str]):
+def register_device(dev_name: str, report: Optional[str], return_message: Optional[str]):
     SQL1 = """
-    INSERT INTO public.devices (device_name, has_gpu, return_message) VALUES
+    INSERT INTO public.devices (device_name, report, return_message) VALUES
            (%s, %s, %s);
-    """
-    SQL2 = """
-    INSERT INTO public.gpu_machines (machine_id, last_detail) VALUES
-           ((
-           SELECT device_id
-             FROM devices
-            WHERE device_name = %s
-           ),
-           %s);
     """
 
     with psycopg2.connect(DATABASE) as sess:
         sess.isolation_level = ISOLATION_LEVEL_READ_COMMITTED
         with sess.cursor() as cur:
-            cur.execute(SQL1, (dev_name, has_gpu, return_message))
-            if has_gpu:
-                cur.execute(SQL2, (dev_name, ''))
+            cur.execute(SQL1, (
+                dev_name,
+                report if report is not None else '',
+                return_message if return_message is not None else ''
+            ))
         sess.commit()
