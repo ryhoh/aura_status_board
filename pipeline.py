@@ -9,12 +9,12 @@ Functions for MHPL (Machine-Hub Pipeline Language).
 
 Pipeline:
     A process between devices.
-    Pipeline receives payload from device as parameter (which can be empty),
+    Pipeline receives parameters from device as parameter (which can be empty),
     processes it and return value to device (type).
 
 Pipeline fuction must satisfy below:
-    Receive str payload.
-    Return one str object exactly.
+    Receive str payloads.
+    Return exactly one str object .
 
 """
 
@@ -44,6 +44,16 @@ def get_device_name_randomly() -> str:
 def get_report(device_name: str) -> str:
     return db.select_report(device_name)
 
+def culc_plus(a: str, b: str) -> str:
+    try:
+        return str(int(a) + int(b))  # as int
+    except ValueError:
+        try:
+            return str(float(a) + float(b))  # as float
+        except ValueError:
+            return a + b  # as str
+            
+
 """
 Pipeline parser and executer
 
@@ -63,7 +73,7 @@ Objects for tokenizing.
 BNF for MHPL:
     <message> ::= <token>+
     <token> ::= <command> | <plain-text>
-    <command> ::= "#" (a-zA-Z0-9)+ "(" <message> ")"
+    <command> ::= "#" (a-zA-Z0-9)+ "(" (<message>? | <message> (" "* "," " "* <message>)+) ")"
     <plain-text> ::= .*
 
 """
@@ -84,6 +94,9 @@ class Message(Symbol):
     def __str__(self) -> str:
         return ''.join(map(str, self.tokens))
 
+    def __iter__(self):
+        return iter(self.tokens)
+
 
 class Token(Symbol):
     def __init__(self, name: str) -> None:
@@ -102,18 +115,19 @@ class Command(Token):
         'devices': get_device_n,
         'deads': get_dead_device_n,
         'report': get_report,
+        'plus': culc_plus,
     }
     valid_commands = frozenset(func_map.keys())
 
-    def __init__(self, name: str, message: Message) -> None:
+    def __init__(self, name: str, messages: List[Message]) -> None:
         super().__init__(name)
-        self.message = message
+        self.messages = messages
 
     def __repr__(self) -> str:
-        return '%s(name="%s", message=%s)' % (self.__class__.__name__, self.name, self.message)
+        return '%s(name="%s", messages=%s)' % (self.__class__.__name__, self.name, self.messages)
 
     def __eq__(self, o: object) -> bool:
-        return super().__eq__(o) and self.message == o.message
+        return super().__eq__(o) and self.messages == o.messages
 
     def __str__(self) -> str:
         return self.exec()
@@ -121,16 +135,19 @@ class Command(Token):
     def exec(self):
         if self.name not in self.valid_commands:
             raise CommandNotFoundError('invalid command: %s' % self.name)
-        param = str(self.message)
-        if param == '':
+        params = list(map(str, self.messages))
+        if params == ['']:  # with no params
             try:
                 return self.func_map[self.name]()
             except TypeError:
-                raise CommandParamUnmatchError('command %s got extra param %s' % (self.name, param))
+                raise CommandParamUnmatchError('command %s got extra param %s' % (self.name, params))
         try:
-            return self.func_map[self.name](param)
+            return self.func_map[self.name](*params)
         except TypeError:
-            raise CommandParamUnmatchError('command %s needs param but got nothing' % (self.name))
+            raise CommandParamUnmatchError(
+                'command %s called with params %s (it\'s too many or too few).'
+                % (self.name, params)
+            )
 
 
 class PlainText(Token):
@@ -172,10 +189,15 @@ class Pipeline:
             elif c == '(' and is_cmd:
                 left_parenthesis_idx = idx
             elif c == ')' and left_parenthesis_idx is not None:
+                param = replace_escape(text[left_parenthesis_idx + 1: idx])
+                if ',' in param:
+                    messages = [Pipeline.parse(p) for p in param.replace(' ', '').split(',')]
+                else:
+                    messages = [Pipeline.parse(param)]
                 res.append(
                     Command(
                         name=replace_escape(text[begin_idx + 1: left_parenthesis_idx]),
-                        message=Pipeline.parse(replace_escape(text[left_parenthesis_idx + 1: idx]))
+                        messages=messages
                     )
                 )
                 begin_idx = idx + 1

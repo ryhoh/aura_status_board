@@ -28,11 +28,22 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(
             Pipeline.parse('#report(GPU480)'),
             Message([
-                Command(name='report', message=
+                Command(name='report', messages=[
                     Message([
                         PlainText(name='GPU480')
                     ])
-                )
+                ])
+            ])
+        )
+
+    def test_parse_command_multi_params(self):
+        self.assertEqual(
+            Pipeline.parse('#plus(1, 2)'),
+            Message([
+                Command(name='plus', messages=[
+                    Message([PlainText(name='1')]),
+                    Message([PlainText(name='2')])
+                ])
             ])
         )
 
@@ -41,13 +52,13 @@ class TestPipeline(unittest.TestCase):
             Pipeline.parse('Alive Device: #alives() / #devices()'),
             Message([
                 PlainText(name='Alive Device: '),
-                Command(name='alives', message=
+                Command(name='alives', messages=[
                     Message([])
-                ),
+                ]),
                 PlainText(name=' / '),
-                Command(name='devices', message=
+                Command(name='devices', messages=[
                     Message([])
-                )
+                ])
             ])
         )
 
@@ -80,14 +91,27 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(
             str(
                 Message([
-                    Command(name='report', message=
+                    Command(name='report', messages=[
                         Message([
                             PlainText(name='GPU480')
                         ])
-                    )
+                    ])
                 ])
             ),
             'GPU Information Here.'
+        )
+
+    def test_str_command_multi_params(self):
+        self.assertEqual(
+            str(
+                Message([
+                    Command(name='plus', messages=[
+                        Message([PlainText(name='1')]),
+                        Message([PlainText(name='2')])
+                    ])
+                ])
+            ),
+            '3'
         )
 
     def test_str_mix(self):
@@ -100,13 +124,13 @@ class TestPipeline(unittest.TestCase):
             str(
                 Message([
                     PlainText(name='Alive Device: '),
-                    Command(name='alives', message=
+                    Command(name='alives', messages=[
                         Message([])
-                    ),
+                    ]),
                     PlainText(name=' / '),
-                    Command(name='devices', message=
+                    Command(name='devices', messages=[
                         Message([])
-                    )
+                    ])
                 ])
             ),
             'Alive Device: 3 / 4'
@@ -117,9 +141,9 @@ class TestPipeline(unittest.TestCase):
             CommandNotFoundError,
             str,
             Message([
-                Command(name='not_exist_command', message=
+                Command(name='not_exist_command', messages=[
                     Message([])
-                )
+                ])
             ])
         )
 
@@ -128,11 +152,11 @@ class TestPipeline(unittest.TestCase):
             CommandParamUnmatchError,
             str,
             Message([
-                Command(name='devices', message=
+                Command(name='devices', messages=[
                     Message([
                         PlainText(name='extra_word')
                     ])
-                )
+                ])
             ])
         )
 
@@ -141,9 +165,9 @@ class TestPipeline(unittest.TestCase):
             CommandParamUnmatchError,
             str,
             Message([
-                Command(name='report', message=
+                Command(name='report', messages=[
                     Message([])  # param needed but it's empty
-                )
+                ])
             ])
         )
 
@@ -168,6 +192,12 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(
             Pipeline.feed('#report(GPU480)'),
             'GPU Information Here.'
+        )
+
+    def test_feed_command_multi_params(self):
+        self.assertEqual(
+            Pipeline.feed('#plus(1, 2)'),
+            '3'
         )
 
     def test_feed_mix(self):
