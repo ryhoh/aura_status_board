@@ -17,7 +17,6 @@ Pipeline fuction must satisfy below:
     Return exactly one str object .
 
 """
-
 def get_alive_device_n() -> str:
     devices: List[db.Device] = db.select_devices()
     return str(
@@ -29,20 +28,25 @@ def get_alive_device_n() -> str:
         )
     )
 
+
 def get_device_n() -> str:
     return str(len(db.select_devices()))
 
+
 def get_dead_device_n() -> str:
-    return str(int(get_device_n) - int(get_alive_device_n()))
+    return str(int(get_device_n()) - int(get_alive_device_n()))
+
 
 def get_device_name_randomly() -> str:
     devices = db.select_devices()
     if len(devices) == 0:
         return ''
-    return random.choice(devices)
+    return random.choice(devices).device_name
+
 
 def get_report(device_name: str) -> str:
     return db.select_report(device_name)
+
 
 def culc_plus(a: str, b: str) -> str:
     try:
@@ -58,12 +62,11 @@ def culc_plus(a: str, b: str) -> str:
 Pipeline parser and executer
 
 """
-
-class CommandNotFoundError(Exception):
+class FunctionNotFoundError(Exception):
     pass
 
 
-class CommandParamUnmatchError(Exception):
+class FunctionParamUnmatchError(Exception):
     pass
 
 
@@ -72,14 +75,14 @@ Objects for tokenizing.
 
 BNF for MHPL:
     <message> ::= <token>+
-    <token> ::= <command> | <plain-text>
-    <command> ::= "#" (a-zA-Z0-9)+ "(" (<message>? | <message> (" "* "," " "* <message>)+) ")"
+    <token> ::= <function> | <plain-text>
+    <function> ::= "#" (a-zA-Z0-9)+ "(" (<message>? | <message> (" "* "," " "* <message>)+) ")"
     <plain-text> ::= .*
 
 """
-
 class Symbol:
     pass
+
 
 class Message(Symbol):
     def __init__(self, tokens: List["Token"]) -> None:
@@ -109,7 +112,7 @@ class Token(Symbol):
         return self.name == o.name
 
 
-class Command(Token):
+class Function(Token):
     func_map = {  # Dict of Avaliable Functions
         'alives': get_alive_device_n,
         'devices': get_device_n,
@@ -117,7 +120,7 @@ class Command(Token):
         'report': get_report,
         'plus': culc_plus,
     }
-    valid_commands = frozenset(func_map.keys())
+    valid_functions = frozenset(func_map.keys())
 
     def __init__(self, name: str, messages: List[Message]) -> None:
         super().__init__(name)
@@ -133,19 +136,19 @@ class Command(Token):
         return self.exec()
 
     def exec(self):
-        if self.name not in self.valid_commands:
-            raise CommandNotFoundError('invalid command: %s' % self.name)
+        if self.name not in self.valid_functions:
+            raise FunctionNotFoundError('invalid function: %s' % self.name)
         params = list(map(str, self.messages))
         if params == ['']:  # with no params
             try:
                 return self.func_map[self.name]()
             except TypeError:
-                raise CommandParamUnmatchError('command %s got extra param %s' % (self.name, params))
+                raise FunctionParamUnmatchError('function %s got extra param %s' % (self.name, params))
         try:
             return self.func_map[self.name](*params)
         except TypeError:
-            raise CommandParamUnmatchError(
-                'command %s called with params %s (it\'s too many or too few).'
+            raise FunctionParamUnmatchError(
+                'function %s called with params %s (it\'s too many or too few).'
                 % (self.name, params)
             )
 
@@ -172,7 +175,7 @@ def replace_escape(text: str) -> str:
 
 class Pipeline:
     @staticmethod
-    def parse(text: str) -> Symbol:
+    def parse(text: str) -> Message:
         res = []
         begin_idx = 0
         left_parenthesis_idx = None
@@ -181,7 +184,7 @@ class Pipeline:
         for idx, c in enumerate(text):
             if c == '\\':
                 escaped = not escaped
-            elif c == '#' and not escaped:  # Begining of Command
+            elif c == '#' and not escaped:  # Begining of Function
                 if idx != 0:
                     res.append(PlainText(replace_escape(text[begin_idx: idx])))
                 begin_idx = idx
@@ -195,7 +198,7 @@ class Pipeline:
                 else:
                     messages = [Pipeline.parse(param)]
                 res.append(
-                    Command(
+                    Function(
                         name=replace_escape(text[begin_idx + 1: left_parenthesis_idx]),
                         messages=messages
                     )
