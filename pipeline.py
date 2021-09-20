@@ -52,10 +52,48 @@ def culc_plus(a: str, b: str) -> str:
     try:
         return str(int(a) + int(b))  # as int
     except ValueError:
-        try:
-            return str(float(a) + float(b))  # as float
-        except ValueError:
-            return a + b  # as str
+        pass
+    try:
+        return str(float(a) + float(b))  # as float
+    except ValueError:
+        return a + b  # as str
+
+
+def culc_minus(a: str, b: str) -> str:
+    try:
+        return str(int(a) - int(b))  # as int
+    except ValueError:
+        pass
+    try:
+        return str(float(a) - float(b))  # as float
+    except ValueError:
+        return 'NaN'
+
+
+def culc_times(a: str, b: str) -> str:
+    try:
+        return str(int(a) * int(b))  # as int
+    except ValueError:
+        pass
+    try:
+        return str(float(a) * float(b))  # as float
+    except ValueError:
+        if isinstance(b, int):
+            return a * int(b)  # 'foo' * 3 = 'foofoofoo'
+        return 'NaN'
+
+
+def culc_devide(a: str, b: str) -> str:
+    try:
+        if a % b == 0:  # as int
+            return str(int(a) // int(b))
+        return str(int(a) / int(b))
+    except ValueError:
+        pass
+    try:
+        return str(float(a) / float(b))  # as float
+    except ValueError:
+        return 'NaN'
             
 
 """
