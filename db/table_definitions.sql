@@ -28,7 +28,7 @@ CREATE TABLE public.users (
 --------------------
 
 INSERT INTO public.devices (device_name,last_heartbeat,report,return_message) VALUES
-	('takenaka_dl',current_timestamp,'testtesttest',''),
+	('GPU480',current_timestamp,'GPU Information Here.',''),
 	('SMC101',current_timestamp,'','Hello SMC!'),
 	('AGP092',current_timestamp,'Mon Mar  8 21:37:43 2021
  -----------------------------------------------------------------------------

@@ -79,6 +79,24 @@ def select_devices() -> List[Device]:
     }) for tp in res]
 
 
+def select_report(dev_name: str) -> str:
+    """
+    :return: report of a device
+    """
+    SQL = """
+    SELECT report
+      FROM devices
+     WHERE device_name = %s;
+    """
+
+    with psycopg2.connect(DATABASE) as sess:
+        sess.isolation_level = ISOLATION_LEVEL_READ_COMMITTED
+        with sess.cursor() as cur:
+            cur.execute(SQL, (dev_name,))
+            res: Tuple[str] = cur.fetchone()
+    return res[0]  # return single value
+
+
 def select_return_message(dev_name: str) -> str:
     """
     :return: return_message of a device

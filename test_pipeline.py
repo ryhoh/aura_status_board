@@ -1,6 +1,6 @@
 import unittest
 
-from pipeline import Command, Message, Pipeline, PlainText
+from pipeline import Command, CommandNotFoundError, CommandParamUnmatchError, Message, Pipeline, PlainText
 
 
 class TestPipeline(unittest.TestCase):
@@ -24,17 +24,17 @@ class TestPipeline(unittest.TestCase):
             ])
         )
 
-    # def test_parse_command(self):
-    #     self.assertEqual(
-    #         Pipeline.parse('#ident(AGP092)'),
-    #         Message([
-    #             Command(name='ident', message=
-    #                 Message([
-    #                     PlainText(name='AGP092')
-    #                 ])
-    #             )
-    #         ])
-    #     )
+    def test_parse_command_report(self):
+        self.assertEqual(
+            Pipeline.parse('#report(GPU480)'),
+            Message([
+                Command(name='report', message=
+                    Message([
+                        PlainText(name='GPU480')
+                    ])
+                )
+            ])
+        )
 
     def test_parse_mix(self):
         self.assertEqual(
@@ -76,19 +76,19 @@ class TestPipeline(unittest.TestCase):
             '\\##Hello\\world!##'  # means '\##Hello\world!##'
         )
 
-    # def test_str_command(self):
-    #     self.assertEqual(
-    #         str(
-    #             Message([
-    #                 Command(name='ident', message=
-    #                     Message([
-    #                         PlainText(name='AGP092')
-    #                     ])
-    #                 )
-    #             ])
-    #         ),
-    #         'Loooooooooooooong message!'
-    #     )
+    def test_str_command_report(self):
+        self.assertEqual(
+            str(
+                Message([
+                    Command(name='report', message=
+                        Message([
+                            PlainText(name='GPU480')
+                        ])
+                    )
+                ])
+            ),
+            'GPU Information Here.'
+        )
 
     def test_str_mix(self):
         """
@@ -112,6 +112,42 @@ class TestPipeline(unittest.TestCase):
             'Alive Device: 3 / 4'
         )
 
+    def test_invalid_command_error(self):
+        self.assertRaises(
+            CommandNotFoundError,
+            str,
+            Message([
+                Command(name='not_exist_command', message=
+                    Message([])
+                )
+            ])
+        )
+
+    def test_extra_param_error(self):
+        self.assertRaises(
+            CommandParamUnmatchError,
+            str,
+            Message([
+                Command(name='devices', message=
+                    Message([
+                        PlainText(name='extra_word')
+                    ])
+                )
+            ])
+        )
+
+    def test_lack_param_error(self):
+        self.assertRaises(
+            CommandParamUnmatchError,
+            str,
+            Message([
+                Command(name='report', message=
+                    Message([])  # param needed but it's empty
+                )
+            ])
+        )
+
+
     """
     Feeding tests
 
@@ -126,6 +162,12 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(
             Pipeline.feed('\\\\\\#\\#Hello\\\\world!\\#\\#'),  # means '\\\#\#Hello\\world!\#\#'
             '\\##Hello\\world!##'  # means '\##Hello\world!##'
+        )
+
+    def test_feed_command_report(self):
+        self.assertEqual(
+            Pipeline.feed('#report(GPU480)'),
+            'GPU Information Here.'
         )
 
     def test_feed_mix(self):

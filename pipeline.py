@@ -1,10 +1,11 @@
 import datetime as dt
+import random
 from typing import List
 
 import db
 
 """
-Functions for Pipeline.
+Functions for MHPL (Machine-Hub Pipeline Language).
 
 Pipeline:
     A process between devices.
@@ -17,11 +18,7 @@ Pipeline fuction must satisfy below:
 
 """
 
-# def identity(device_name: str) -> str:
-#     return db.select_return_message(dev_name=device_name)
-
-
-def alive_device_n() -> str:
+def get_alive_device_n() -> str:
     devices: List[db.Device] = db.select_devices()
     return str(
         sum(
@@ -32,23 +29,38 @@ def alive_device_n() -> str:
         )
     )
 
-def device_n() -> str:
+def get_device_n() -> str:
     return str(len(db.select_devices()))
 
+def get_dead_device_n() -> str:
+    return str(int(get_device_n) - int(get_alive_device_n()))
+
+def get_device_name_randomly() -> str:
+    devices = db.select_devices()
+    if len(devices) == 0:
+        return ''
+    return random.choice(devices)
+
+def get_report(device_name: str) -> str:
+    return db.select_report(device_name)
 
 """
 Pipeline parser and executer
 
 """
 
-class CommandError(Exception):
+class CommandNotFoundError(Exception):
+    pass
+
+
+class CommandParamUnmatchError(Exception):
     pass
 
 
 """
 Objects for tokenizing.
 
-BNF below:
+BNF for MHPL:
     <message> ::= <token>+
     <token> ::= <command> | <plain-text>
     <command> ::= "#" (a-zA-Z0-9)+ "(" <message> ")"
@@ -86,9 +98,10 @@ class Token(Symbol):
 
 class Command(Token):
     func_map = {  # Dict of Avaliable Functions
-        'alives': alive_device_n,
-        'devices': device_n,
-        # 'ident': identity,
+        'alives': get_alive_device_n,
+        'devices': get_device_n,
+        'deads': get_dead_device_n,
+        'report': get_report,
     }
     valid_commands = frozenset(func_map.keys())
 
@@ -107,11 +120,17 @@ class Command(Token):
 
     def exec(self):
         if self.name not in self.valid_commands:
-            raise CommandError('invalid command: %s' % self.name)
+            raise CommandNotFoundError('invalid command: %s' % self.name)
         param = str(self.message)
         if param == '':
-            return self.func_map[self.name]()
-        return self.func_map[self.name](param)
+            try:
+                return self.func_map[self.name]()
+            except TypeError:
+                raise CommandParamUnmatchError('command %s got extra param %s' % (self.name, param))
+        try:
+            return self.func_map[self.name](param)
+        except TypeError:
+            raise CommandParamUnmatchError('command %s needs param but got nothing' % (self.name))
 
 
 class PlainText(Token):

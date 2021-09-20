@@ -11,7 +11,7 @@ import uvicorn
 
 import db
 from db import Device
-from pipeline import CommandError, Pipeline
+from pipeline import CommandNotFoundError, CommandParamUnmatchError, Pipeline
 import user_authorization as user_auth
 
 
@@ -52,7 +52,7 @@ def api_heartbeat(
     return_message = db.select_return_message(name)
     try:
         content = Pipeline.feed(return_message)
-    except CommandError:
+    except (CommandNotFoundError, CommandParamUnmatchError):
         content = return_message
 
     return PlainTextResponse(
@@ -77,7 +77,7 @@ def api_heartbeat(
     return_message = db.select_return_message(device_name)
     try:
         content = Pipeline.feed(return_message)
-    except CommandError:
+    except (CommandNotFoundError, CommandParamUnmatchError):
         content = return_message
 
     return PlainTextResponse(
