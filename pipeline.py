@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 from mhpl_functions import available_functions
 
@@ -115,9 +115,48 @@ def replace_escape(text: str) -> str:
     return text
 
 
+def find_closing_parenthesis_idx(text: str, start_left_paren: int) -> int:
+    """
+    Find end of parentheses
+
+    """
+    opened_paren_num = 1
+    for right_paren_idx, right_c in enumerate(text[start_left_paren + 1:], start=start_left_paren + 1):
+        if right_c == '(':
+            opened_paren_num += 1
+            continue
+        if right_c == ')':
+            opened_paren_num -= 1
+            if opened_paren_num == 0:
+                return right_paren_idx
+    # Parentheses have not been closed.
+    raise ParseError('Unclosed parentheses:', text)
+
+
+def build_function(text: str, begin_idx: int) -> Tuple[Function, int]:
+    for left_paren_idx, left_c in enumerate(text[begin_idx + 1:], start=begin_idx + 1):
+        if left_c == '(':
+            right_paren_idx = find_closing_parenthesis_idx(text, left_paren_idx)
+            name = replace_escape(text[begin_idx + 1: left_paren_idx])
+            param = replace_escape(text[left_paren_idx + 1: right_paren_idx])
+            if ',' in param:
+                messages = [Pipeline.parse(p) for p in param.replace(' ', '').split(',')]
+            else:
+                messages = [Pipeline.parse(param)]
+            res = Function(name=name, messages=messages)
+            next_idx = right_paren_idx + 1
+            return res, next_idx
+    # Parentheses have not been opened.
+    raise ParseError('Function without left parentheses:', text)
+
+
 class Pipeline:
     @staticmethod
     def parse(text: str) -> Message:
+        """
+        Parse text written in MHPL
+
+        """
         res = []
         buffer_begin = None
         escaped = False
@@ -129,34 +168,11 @@ class Pipeline:
             elif c == '#' and not escaped:  # Begining of Function
                 if buffer_begin is not None:
                     res.append(PlainText(replace_escape(text[buffer_begin: idx])))
-                begin_idx = idx
-                success = False
-                for left_paren_idx, left_c in enumerate(text[idx + 1:], start=idx + 1):
-                    if left_c == '(':
-                        opened_paren_num = 1
-                        for right_paren_idx, right_c in enumerate(text[left_paren_idx + 1:], start=left_paren_idx + 1):
-                            if right_c == '(':
-                                opened_paren_num += 1
-                                continue
-                            if right_c == ')':
-                                opened_paren_num -= 1
-                                if opened_paren_num == 0:
-                                    name = replace_escape(text[begin_idx + 1: left_paren_idx])
-                                    param = replace_escape(text[left_paren_idx + 1: right_paren_idx])
-                                    if ',' in param:
-                                        messages = [Pipeline.parse(p) for p in param.replace(' ', '').split(',')]
-                                    else:
-                                        messages = [Pipeline.parse(param)]
-                                    res.append(Function(name=name, messages=messages))
-                                    idx = right_paren_idx + 1
-                                    success = True
-                                    buffer_begin = None
-                                    break
-                        if success:
-                            break
-                if success:
-                    continue
-                raise ParseError('Parse failed with:', text)
+                function, next_idx = build_function(text, idx)
+                res.append(function)
+                idx = next_idx
+                buffer_begin = None
+                continue
             else:
                 escaped = False
 
@@ -170,4 +186,8 @@ class Pipeline:
 
     @staticmethod
     def feed(return_message: str):
+        """
+        Feed text written in MHPL and get result string.
+
+        """
         return str(Pipeline.parse(return_message))
