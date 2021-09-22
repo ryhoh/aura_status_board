@@ -62,6 +62,31 @@ class TestPipeline(unittest.TestCase):
             ])
         )
 
+    def test_parse_deep(self):
+        """
+        Note: This testcase only succeeds within 24 hours from initialization of DB.
+        (Because of 'alives' function)
+
+        """
+        self.assertEqual(
+            Pipeline.parse('Alive Device Ratio: #divide(#alives(), #devices())'),
+            Message([
+                PlainText(name='Alive Device Ratio: '),
+                Function(name='divide', messages=[
+                    Message([
+                        Function(name='alives', messages=[
+                            Message([])
+                        ]),
+                    ]),
+                    Message([
+                        Function(name='devices', messages=[
+                            Message([])
+                        ]),
+                    ]),
+                ])
+            ])
+        )
+
     """
     Tests for transforming into str.
     
@@ -136,6 +161,33 @@ class TestPipeline(unittest.TestCase):
             'Alive Device: 3 / 4'
         )
 
+    def test_str_deep(self):
+        """
+        Note: This testcase only succeeds within 24 hours from initialization of DB.
+        (Because of 'alives' function)
+
+        """
+        self.assertEqual(
+            str(
+                Message([
+                    PlainText(name='Alive Device Ratio: '),
+                    Function(name='divide', messages=[
+                        Message([
+                            Function(name='alives', messages=[
+                                Message([])
+                            ]),
+                        ]),
+                        Message([
+                            Function(name='devices', messages=[
+                                Message([])
+                            ]),
+                        ]),
+                    ])
+                ])
+            ),
+            'Alive Device Ratio: 0.75'
+        )
+
     def test_invalid_function_error(self):
         self.assertRaises(
             FunctionNotFoundError,
@@ -201,9 +253,25 @@ class TestPipeline(unittest.TestCase):
         )
 
     def test_feed_mix(self):
+        """
+        Note: This testcase only succeeds within 24 hours from initialization of DB.
+        (Because of 'alives' function)
+
+        """
         self.assertEqual(
             Pipeline.feed('Alive Device: #alives() / #devices()'),
             'Alive Device: 3 / 4'
+        )
+
+    def test_feed_deep(self):
+        """
+        Note: This testcase only succeeds within 24 hours from initialization of DB.
+        (Because of 'alives' function)
+
+        """
+        self.assertEqual(
+            Pipeline.feed('Alive Device Ratio: #divide(#alives(), #devices())'),
+            'Alive Device Ratio: 0.75'
         )
 
 

@@ -1,12 +1,16 @@
 from typing import List
 
-import mhpl_functions as f
+from mhpl_functions import available_functions
 
 
 """
 MHPL (Machine-Hub Pipeline Language) Interpreter
 
 """
+class ParseError(Exception):
+    pass
+
+
 class FunctionNotFoundError(Exception):
     pass
 
@@ -56,16 +60,7 @@ class Token(Symbol):
 
 
 class Function(Token):
-    func_map = {  # Dict of Avaliable Functions
-        'alives': f.get_alive_device_n,
-        'devices': f.get_device_n,
-        'deads': f.get_dead_device_n,
-        'report': f.get_report,
-        'plus': f.culc_plus,
-        'minus': f.culc_minus,
-        'times': f.culc_times,
-        'divide': f.culc_divide,
-    }
+    func_map = available_functions
     valid_functions = frozenset(func_map.keys())
 
     def __init__(self, name: str, messages: List[Message]) -> None:
@@ -124,41 +119,53 @@ class Pipeline:
     @staticmethod
     def parse(text: str) -> Message:
         res = []
-        begin_idx = 0
-        left_parenthesis_idx = None
-        is_cmd = False
+        buffer_begin = None
         escaped = False
-        for idx, c in enumerate(text):
+        idx = 0
+        while idx < len(text):
+            c = text[idx]
             if c == '\\':
                 escaped = not escaped
             elif c == '#' and not escaped:  # Begining of Function
-                if idx != 0:
-                    res.append(PlainText(replace_escape(text[begin_idx: idx])))
+                if buffer_begin is not None:
+                    res.append(PlainText(replace_escape(text[buffer_begin: idx])))
                 begin_idx = idx
-                is_cmd = True
-            elif c == '(' and is_cmd:
-                left_parenthesis_idx = idx
-            elif c == ')' and left_parenthesis_idx is not None:
-                param = replace_escape(text[left_parenthesis_idx + 1: idx])
-                if ',' in param:
-                    messages = [Pipeline.parse(p) for p in param.replace(' ', '').split(',')]
-                else:
-                    messages = [Pipeline.parse(param)]
-                res.append(
-                    Function(
-                        name=replace_escape(text[begin_idx + 1: left_parenthesis_idx]),
-                        messages=messages
-                    )
-                )
-                begin_idx = idx + 1
-                left_parenthesis_idx = None
-                is_cmd = False
+                success = False
+                for left_paren_idx, left_c in enumerate(text[idx + 1:], start=idx + 1):
+                    if left_c == '(':
+                        opened_paren_num = 1
+                        for right_paren_idx, right_c in enumerate(text[left_paren_idx + 1:], start=left_paren_idx + 1):
+                            if right_c == '(':
+                                opened_paren_num += 1
+                                continue
+                            if right_c == ')':
+                                opened_paren_num -= 1
+                                if opened_paren_num == 0:
+                                    name = replace_escape(text[begin_idx + 1: left_paren_idx])
+                                    param = replace_escape(text[left_paren_idx + 1: right_paren_idx])
+                                    if ',' in param:
+                                        messages = [Pipeline.parse(p) for p in param.replace(' ', '').split(',')]
+                                    else:
+                                        messages = [Pipeline.parse(param)]
+                                    res.append(Function(name=name, messages=messages))
+                                    idx = right_paren_idx + 1
+                                    success = True
+                                    buffer_begin = None
+                                    break
+                        if success:
+                            break
+                if success:
+                    continue
+                raise ParseError('Parse failed with:', text)
             else:
                 escaped = False
-        
-        if begin_idx != len(text):
-            res.append(PlainText(replace_escape(text[begin_idx:])))
 
+            if buffer_begin is None:
+                buffer_begin = idx
+            idx += 1
+        
+        if buffer_begin is not None:
+            res.append(PlainText(replace_escape(text[buffer_begin:])))
         return Message(tokens=res)
 
     @staticmethod

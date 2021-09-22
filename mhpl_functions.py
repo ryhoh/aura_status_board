@@ -86,7 +86,7 @@ def culc_times(a: str, b: str) -> str:
 
 def culc_divide(a: str, b: str) -> str:
     try:
-        if a % b == 0:  # as int
+        if int(a) % int(b) == 0:  # as int
             return str(int(a) // int(b))
         return str(int(a) / int(b))
     except ValueError:
@@ -95,4 +95,15 @@ def culc_divide(a: str, b: str) -> str:
         return str(float(a) / float(b))  # as float
     except ValueError:
         return 'NaN'
-    
+
+
+available_functions = {
+    'alives': get_alive_device_n,
+    'devices': get_device_n,
+    'deads': get_dead_device_n,
+    'report': get_report,
+    'plus': culc_plus,
+    'minus': culc_minus,
+    'times': culc_times,
+    'divide': culc_divide,
+}
