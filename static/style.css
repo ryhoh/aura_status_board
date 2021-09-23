@@ -143,156 +143,156 @@ tr.bg1 td {
 /* Animation */
 @keyframes blink {
   0% {
-    background-color: rgb(var(--tile-1), 0.0);
+  background-color: rgb(var(--tile-1), 0.8);
     box-shadow:
-      0em 1.2em rgb(var(--tile-2), 0.8),
-    1.2em 1.2em rgb(var(--tile-0), 0.6),
-    1.2em   0em rgb(var(--tile-1), 0.4),
-    2.4em 1.2em rgb(var(--tile-2), 0.6),
-    2.4em   0em rgb(var(--tile-2), 0.8),
-    3.6em 1.2em rgb(var(--tile-0), 1.0),
-    3.6em   0em rgb(var(--tile-1), 0.2),
-    4.8em 1.2em rgb(var(--tile-2), 0.4),
-    4.8em   0em rgb(var(--tile-0), 0.2);
+        0em 1.2em rgb(var(--tile-2), 0.4),
+      1.2em 1.2em rgb(var(--tile-0), 0.2),
+      1.2em   0em rgb(var(--tile-1), 0.8),
+      2.4em 1.2em rgb(var(--tile-2), 0.6),
+      2.4em   0em rgb(var(--tile-2), 0.0),
+      3.6em 1.2em rgb(var(--tile-0), 0.6),
+      3.6em   0em rgb(var(--tile-1), 0.4),
+      4.8em 1.2em rgb(var(--tile-2), 1.0),
+      4.8em   0em rgb(var(--tile-0), 0.2);
   }
   
   10% {
-    background-color: rgb(var(--tile-1), 0.2);
+  background-color: rgb(var(--tile-1), 1.0);
     box-shadow:
-    0em   1.2em rgb(var(--tile-2), 0.6),
-    1.2em 1.2em rgb(var(--tile-0), 0.8),
-    1.2em   0em rgb(var(--tile-1), 0.6),
-    2.4em 1.2em rgb(var(--tile-2), 0.4),
-    2.4em   0em rgb(var(--tile-2), 1.0),
-    3.6em 1.2em rgb(var(--tile-0), 0.8),
-    3.6em   0em rgb(var(--tile-1), 0.0),
-    4.8em 1.2em rgb(var(--tile-2), 0.2),
-    4.8em   0em rgb(var(--tile-0), 0.4);
+        0em 1.2em rgb(var(--tile-2), 0.6),
+      1.2em 1.2em rgb(var(--tile-0), 0.0),
+      1.2em   0em rgb(var(--tile-1), 0.6),
+      2.4em 1.2em rgb(var(--tile-2), 0.8),
+      2.4em   0em rgb(var(--tile-2), 0.2),
+      3.6em 1.2em rgb(var(--tile-0), 0.4),
+      3.6em   0em rgb(var(--tile-1), 0.2),
+      4.8em 1.2em rgb(var(--tile-2), 0.8),
+      4.8em   0em rgb(var(--tile-0), 0.4);
   }
   
   20% {
-    background-color: rgb(var(--tile-1), 0.4);
+  background-color: rgb(var(--tile-1), 0.8);
     box-shadow:
-    0em   1.2em rgb(var(--tile-2), 0.4),
-    1.2em 1.2em rgb(var(--tile-0), 1.0),
-    1.2em   0em rgb(var(--tile-1), 0.8),
-    2.4em 1.2em rgb(var(--tile-2), 0.2),
-    2.4em   0em rgb(var(--tile-2), 0.8),
-    3.6em 1.2em rgb(var(--tile-0), 0.6),
-    3.6em   0em rgb(var(--tile-1), 0.2),
-    4.8em 1.2em rgb(var(--tile-2), 0.0),
-    4.8em   0em rgb(var(--tile-0), 0.6);
+        0em 1.2em rgb(var(--tile-2), 0.8),
+      1.2em 1.2em rgb(var(--tile-0), 0.2),
+      1.2em   0em rgb(var(--tile-1), 0.4),
+      2.4em 1.2em rgb(var(--tile-2), 1.0),
+      2.4em   0em rgb(var(--tile-2), 0.4),
+      3.6em 1.2em rgb(var(--tile-0), 0.2),
+      3.6em   0em rgb(var(--tile-1), 0.0),
+      4.8em 1.2em rgb(var(--tile-2), 0.6),
+      4.8em   0em rgb(var(--tile-0), 0.6);
   }
   
   30% {
-    background-color: rgb(var(--tile-1), 0.6);
+  background-color: rgb(var(--tile-1), 0.6);
     box-shadow:
-    0em   1.2em rgb(var(--tile-2), 0.2),
-    1.2em 1.2em rgb(var(--tile-0), 0.8),
-    1.2em   0em rgb(var(--tile-1), 1.0),
-    2.4em 1.2em rgb(var(--tile-2), 0.0),
-    2.4em   0em rgb(var(--tile-2), 0.6),
-    3.6em 1.2em rgb(var(--tile-0), 0.4),
-    3.6em   0em rgb(var(--tile-1), 0.4),
-    4.8em 1.2em rgb(var(--tile-2), 0.2),
-    4.8em   0em rgb(var(--tile-0), 0.8);
+        0em 1.2em rgb(var(--tile-2), 1.0),
+      1.2em 1.2em rgb(var(--tile-0), 0.4),
+      1.2em   0em rgb(var(--tile-1), 0.2),
+      2.4em 1.2em rgb(var(--tile-2), 0.8),
+      2.4em   0em rgb(var(--tile-2), 0.6),
+      3.6em 1.2em rgb(var(--tile-0), 0.0),
+      3.6em   0em rgb(var(--tile-1), 0.2),
+      4.8em 1.2em rgb(var(--tile-2), 0.4),
+      4.8em   0em rgb(var(--tile-0), 0.8);
   }
   
   40% {
-    background-color: rgb(var(--tile-1), 0.8);
+  background-color: rgb(var(--tile-1), 0.4);
     box-shadow:
-    0em   1.2em rgb(var(--tile-2), 0.0),
-    1.2em 1.2em rgb(var(--tile-0), 0.6),
-    1.2em   0em rgb(var(--tile-1), 0.8),
-    2.4em 1.2em rgb(var(--tile-2), 0.2),
-    2.4em   0em rgb(var(--tile-2), 0.4),
-    3.6em 1.2em rgb(var(--tile-0), 0.2),
-    3.6em   0em rgb(var(--tile-1), 0.6),
-    4.8em 1.2em rgb(var(--tile-2), 0.4),
-    4.8em   0em rgb(var(--tile-0), 1.0);
+        0em 1.2em rgb(var(--tile-2), 0.8),
+      1.2em 1.2em rgb(var(--tile-0), 0.6),
+      1.2em   0em rgb(var(--tile-1), 0.0),
+      2.4em 1.2em rgb(var(--tile-2), 0.6),
+      2.4em   0em rgb(var(--tile-2), 0.8),
+      3.6em 1.2em rgb(var(--tile-0), 0.2),
+      3.6em   0em rgb(var(--tile-1), 0.4),
+      4.8em 1.2em rgb(var(--tile-2), 0.2),
+      4.8em   0em rgb(var(--tile-0), 1.0);
   }
   
   50% {
-    background-color: rgb(var(--tile-1), 1.0);
+  background-color: rgb(var(--tile-1), 0.2);
     box-shadow:
-    0em   1.2em rgb(var(--tile-2), 0.2),
-    1.2em 1.2em rgb(var(--tile-0), 0.4),
-    1.2em   0em rgb(var(--tile-1), 0.6),
-    2.4em 1.2em rgb(var(--tile-2), 0.4),
-    2.4em   0em rgb(var(--tile-2), 0.2),
-    3.6em 1.2em rgb(var(--tile-0), 0.0),
-    3.6em   0em rgb(var(--tile-1), 0.8),
-    4.8em 1.2em rgb(var(--tile-2), 0.6),
-    4.8em   0em rgb(var(--tile-0), 0.8);
+        0em 1.2em rgb(var(--tile-2), 0.6),
+      1.2em 1.2em rgb(var(--tile-0), 0.8),
+      1.2em   0em rgb(var(--tile-1), 0.2),
+      2.4em 1.2em rgb(var(--tile-2), 0.4),
+      2.4em   0em rgb(var(--tile-2), 1.0),
+      3.6em 1.2em rgb(var(--tile-0), 0.4),
+      3.6em   0em rgb(var(--tile-1), 0.6),
+      4.8em 1.2em rgb(var(--tile-2), 0.0),
+      4.8em   0em rgb(var(--tile-0), 0.8);
   }
   
   60% {
-    background-color: rgb(var(--tile-1), 0.8);
+  background-color: rgb(var(--tile-1), 0.0);
     box-shadow:
-    0em   1.2em rgb(var(--tile-2), 0.4),
-    1.2em 1.2em rgb(var(--tile-0), 0.2),
-    1.2em   0em rgb(var(--tile-1), 0.4),
-    2.4em 1.2em rgb(var(--tile-2), 0.6),
-    2.4em   0em rgb(var(--tile-2), 0.0),
-    3.6em 1.2em rgb(var(--tile-0), 0.2),
-    3.6em   0em rgb(var(--tile-1), 1.0),
-    4.8em 1.2em rgb(var(--tile-2), 0.8),
-    4.8em   0em rgb(var(--tile-0), 0.6);
+        0em 1.2em rgb(var(--tile-2), 0.4),
+      1.2em 1.2em rgb(var(--tile-0), 1.0),
+      1.2em   0em rgb(var(--tile-1), 0.4),
+      2.4em 1.2em rgb(var(--tile-2), 0.2),
+      2.4em   0em rgb(var(--tile-2), 0.8),
+      3.6em 1.2em rgb(var(--tile-0), 0.6),
+      3.6em   0em rgb(var(--tile-1), 0.8),
+      4.8em 1.2em rgb(var(--tile-2), 0.2),
+      4.8em   0em rgb(var(--tile-0), 0.6);
   }
   
   70% {
-    background-color: rgb(var(--tile-1), 0.6);
+  background-color: rgb(var(--tile-1), 0.2);
     box-shadow:
-    0em   1.2em rgb(var(--tile-2), 0.6),
-    1.2em 1.2em rgb(var(--tile-0), 0.0),
-    1.2em   0em rgb(var(--tile-1), 0.2),
-    2.4em 1.2em rgb(var(--tile-2), 0.8),
-    2.4em   0em rgb(var(--tile-2), 0.2),
-    3.6em 1.2em rgb(var(--tile-0), 0.4),
-    3.6em   0em rgb(var(--tile-1), 0.8),
-    4.8em 1.2em rgb(var(--tile-2), 1.0),
-    4.8em   0em rgb(var(--tile-0), 0.4);
+        0em 1.2em rgb(var(--tile-2), 0.2),
+      1.2em 1.2em rgb(var(--tile-0), 0.8),
+      1.2em   0em rgb(var(--tile-1), 0.6),
+      2.4em 1.2em rgb(var(--tile-2), 0.0),
+      2.4em   0em rgb(var(--tile-2), 0.6),
+      3.6em 1.2em rgb(var(--tile-0), 0.8),
+      3.6em   0em rgb(var(--tile-1), 1.0),
+      4.8em 1.2em rgb(var(--tile-2), 0.4),
+      4.8em   0em rgb(var(--tile-0), 0.4);
   }
   
   80% {
-    background-color: rgb(var(--tile-1), 0.4);
+  background-color: rgb(var(--tile-1), 0.4);
     box-shadow:
-    0em   1.2em rgb(var(--tile-2), 0.8),
-    1.2em 1.2em rgb(var(--tile-0), 0.2),
-    1.2em   0em rgb(var(--tile-1), 0.0),
-    2.4em 1.2em rgb(var(--tile-2), 1.0),
-    2.4em   0em rgb(var(--tile-2), 0.4),
-    3.6em 1.2em rgb(var(--tile-0), 0.6),
-    3.6em   0em rgb(var(--tile-1), 0.6),
-    4.8em 1.2em rgb(var(--tile-2), 0.8),
-    4.8em   0em rgb(var(--tile-0), 0.2);
+        0em 1.2em rgb(var(--tile-2), 0.0),
+      1.2em 1.2em rgb(var(--tile-0), 0.6),
+      1.2em   0em rgb(var(--tile-1), 0.8),
+      2.4em 1.2em rgb(var(--tile-2), 0.2),
+      2.4em   0em rgb(var(--tile-2), 0.4),
+      3.6em 1.2em rgb(var(--tile-0), 1.0),
+      3.6em   0em rgb(var(--tile-1), 0.8),
+      4.8em 1.2em rgb(var(--tile-2), 0.6),
+      4.8em   0em rgb(var(--tile-0), 0.2);
   }
   
   90% {
-    background-color: rgb(var(--tile-1), 0.2);
+  background-color: rgb(var(--tile-1), 0.6);
     box-shadow:
-    0em   1.2em rgb(var(--tile-2), 1.0),
-    1.2em 1.2em rgb(var(--tile-0), 0.4),
-    1.2em   0em rgb(var(--tile-1), 0.2),
-    2.4em 1.2em rgb(var(--tile-2), 0.8),
-    2.4em   0em rgb(var(--tile-2), 0.6),
-    3.6em 1.2em rgb(var(--tile-0), 0.8),
-    3.6em   0em rgb(var(--tile-1), 0.4),
-    4.8em 1.2em rgb(var(--tile-2), 0.6),
-    4.8em   0em rgb(var(--tile-0), 0.0);
+        0em 1.2em rgb(var(--tile-2), 0.2),
+      1.2em 1.2em rgb(var(--tile-0), 0.4),
+      1.2em   0em rgb(var(--tile-1), 1.0),
+      2.4em 1.2em rgb(var(--tile-2), 0.4),
+      2.4em   0em rgb(var(--tile-2), 0.2),
+      3.6em 1.2em rgb(var(--tile-0), 0.8),
+      3.6em   0em rgb(var(--tile-1), 0.6),
+      4.8em 1.2em rgb(var(--tile-2), 0.8),
+      4.8em   0em rgb(var(--tile-0), 0.0);
   }
   
   100% {
-    background-color: rgb(var(--tile-1), 0.0);
+  background-color: rgb(var(--tile-1), 0.8);
     box-shadow:
-    0em   1.2em rgb(var(--tile-2), 0.8),
-    1.2em 1.2em rgb(var(--tile-0), 0.6),
-    1.2em   0em rgb(var(--tile-1), 0.4),
-    2.4em 1.2em rgb(var(--tile-2), 0.6),
-    2.4em   0em rgb(var(--tile-2), 0.8),
-    3.6em 1.2em rgb(var(--tile-0), 1.0),
-    3.6em   0em rgb(var(--tile-1), 0.2),
-    4.8em 1.2em rgb(var(--tile-2), 0.4),
-    4.8em   0em rgb(var(--tile-0), 0.2);
+        0em 1.2em rgb(var(--tile-2), 0.4),
+      1.2em 1.2em rgb(var(--tile-0), 0.2),
+      1.2em   0em rgb(var(--tile-1), 0.8),
+      2.4em 1.2em rgb(var(--tile-2), 0.6),
+      2.4em   0em rgb(var(--tile-2), 0.0),
+      3.6em 1.2em rgb(var(--tile-0), 0.6),
+      3.6em   0em rgb(var(--tile-1), 0.4),
+      4.8em 1.2em rgb(var(--tile-2), 1.0),
+      4.8em   0em rgb(var(--tile-0), 0.2);
   }
 }
