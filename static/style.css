@@ -145,7 +145,7 @@ tr.bg1 td {
   0% {
     background-color: rgb(var(--tile-1), 0.0);
     box-shadow:
-    0em   1.2em rgb(var(--tile-2), 0.8),
+      0em 1.2em rgb(var(--tile-2), 0.8),
     1.2em 1.2em rgb(var(--tile-0), 0.6),
     1.2em   0em rgb(var(--tile-1), 0.4),
     2.4em 1.2em rgb(var(--tile-2), 0.6),
