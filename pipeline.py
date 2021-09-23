@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import Final, Dict, List, Tuple
 
 from mhpl_functions import available_functions
 
@@ -33,7 +33,7 @@ class Symbol:
 
 class Message(Symbol):
     def __init__(self, tokens: List["Token"]) -> None:
-        self.tokens = tokens
+        self.tokens: Final[List["Token"]] = tokens
 
     def __repr__(self) -> str:
         return '%s(tokens=%s)' % (self.__class__.__name__, self.tokens)
@@ -50,7 +50,7 @@ class Message(Symbol):
 
 class Token(Symbol):
     def __init__(self, name: str) -> None:
-        self.name = name
+        self.name: Final[str] = name
 
     def __repr__(self) -> str:
         return '%s(name="%s")' % (self.__class__.__name__, self.name)
@@ -60,7 +60,7 @@ class Token(Symbol):
 
 
 class Function(Token):
-    func_map = available_functions
+    func_map: Final[Dict[str, callable]] = available_functions
     valid_functions = frozenset(func_map.keys())
 
     def __init__(self, name: str, messages: List[Message]) -> None:
