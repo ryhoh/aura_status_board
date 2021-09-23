@@ -14,12 +14,12 @@
     <!-- Header -->
     <header>
       <h1>Rycery Machine-Hub</h1>
-      <span class="aura_tile"></span>
+      <span class="blink_tile"></span>
       <nav>
         <ul>
           <li><router-link to="/">Signals</router-link></li>
           <li><router-link to="/reports">Reports</router-link></li>
-          <li><router-link to="/return_message">Return Msg</router-link></li>
+          <li><router-link to="/return_message">Return Msgs</router-link></li>
           <li><router-link to="/whats_this">What's This?</router-link></li>
         </ul>
       </nav>
@@ -71,7 +71,6 @@
             <th class="name">Device Name</th>
             <th class="datetime">Last Signal (JST)</th>
             <th class="time">Elapsed Time</th>
-            <!-- <th class="return_message">Return Message</th> -->
           </tr>
           <tr v-for="(record, idx) in last_signal_ts" :key="record.name" v-bind:class="'bg' + idx % 2">
             <td class="name">{{ record.device_name }}</td>
@@ -82,12 +81,6 @@
                 {{ getPastSeconds(idx) | secondsDiff2Readable }}
               </span>
             </td>
-<!-- 
-            <td class="return_message">
-              <div class="no_break_line">
-                {{ record.return_message }}
-              </div>
-            </td> -->
           </tr>
         </table>
       </div>
@@ -146,14 +139,9 @@
         </blockquote>
       </div>
 
-      <span class="p_bar_1"></span>
-      <div class="box_container">
-        <span class="p_bar_2 box"></span>
-        <p class="box"></p>
-        <p class="box p_bar_main">
-          Note: Word starting with # is function.<br>
-        </p>
-      </div>
+      <p class="rich">
+        Note: Word starting with # is function.<br>
+      </p>
     </div>
   </script>
 
@@ -161,15 +149,10 @@
   <script type="text/x-template" id="whats-this">
     <div>
       <h2>What's This?</h2>
-      <span class="p_bar_1"></span>
-      <div class="box_container">
-        <span class="p_bar_2 box"></span>
-        <p class="box"></p>
-        <p class="box p_bar_main">
-          This is a management page for devices under ryhoh's control.<br>
-          Every device sends heartbeat signal frequently, so we can know the device is alive or not.<br>
-        </p>
-      </div>
+      <p class="rich">
+        This is a management page for devices under ryhoh's control.<br>
+        Every device sends heartbeat signal frequently, so we can know the device is alive or not.<br>
+      </p>
     </div>
   </script>
 

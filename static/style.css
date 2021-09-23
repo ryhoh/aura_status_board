@@ -1,167 +1,298 @@
-/* template */
+/* template for rycery site */
 @charset "UTF-8";
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100;200;300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');
 
 :root {
-	--bg-color-main: 102, 176, 106;
-	--bg-color-sub: 197, 225, 165;
-	--bg-color-0: rgb(197, 225, 165);
-	--bg-color-1: rgb(230, 238, 156);
-	--tile-offset: 1.375em;
-
-	--aura-kcolor-0: 102, 187, 106;
-	--aura-kcolor-1: 156, 204, 101;
-	--aura-kcolor-2: 212, 225, 87;
-
-	--color-caution: #F57F17;
-	--color-warn: #c0392b;
+  --main:  #66b06a;
+  --sub-0: #c5e1a5;
+  --sub-1: #e6ee9c;
+  --tile-0: 102, 187, 106;
+  --tile-1: 156, 204, 101;
+  --tile-2: 212, 225, 87;
+  --caution: #f57f17;
+  --warn: #c0392b;
 }
 
 body {
-	font-family: "ヒラギノ丸ゴ Pro W4","ヒラギノ丸ゴ Pro W3","ヒラギノ丸ゴ Pro",
-	  "Hiragino Maru Gothic Pro","ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro",
-	  "メイリオ", Meiryo, Osaka, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
-	color: #111;
-	background-color: #FFF;
+  font-family: 'IBM Plex Sans', 'Noto Sans JP', sans-serif;
+  color: #111;
+  background-color: #FFF;
 }
 
 /* Header */
-
 h1, h2, h3, h4, h5, h6 {
-	padding-left: 0.5em;
+  font-family: 'Comfortaa', cursive;
+  padding-left: 0.5em;
+}
+
+h2, h3, h4, h5, h6 {
+  font-weight: 400;
 }
 
 h1, h3, h5 {
-	border-left: 0.5em solid rgb(var(--bg-color-main));
+  border-left: 0.5em solid var(--main);
 }
 
 h2, h4, h6 {
-	border-left: 0.5em solid rgb(var(--bg-color-sub));
+  border-left: 0.5em solid var(--sub-0);
 }
 
 h1 {
-	display: inline;
-	padding-right: 1em;
+  display: inline;
+  position: relative;
+  margin-right: 0.5em;
 }
 
 /* Paragraph */
-
-.p_bar_1, .p_bar_2 {
-	height: 0.5em;
-	width: 0.5em;
+p.rich {
+  position: relative;
+  margin-top: 0;
+  padding-top: 1.25em;
+  padding-left: 1.25em;
+  display: inline-block;
 }
 
-.p_bar_1 {
-	border-right: 0.2em solid rgb(var(--bg-color-sub));
-	display: block;
+p.rich::before, p.rich::after {
+  content: '';
+  position: absolute;
 }
 
-.p_bar_2 {
-	border-top: 0.2em solid rgb(var(--bg-color-main));
-	display: inline;
+p.rich::before {
+  background-color: var(--sub-0);
+  left: 9px;
+  top: 0px;
+  width: 3px;
+  height: calc(100% + 9px);
 }
 
-p.p_bar_main {
-	margin-top: 0;
-	border-top: 0.2em solid rgb(var(--bg-color-main));
-	border-left: 0.2em solid rgb(var(--bg-color-sub));
-	padding-top: 0.25em;
-	padding-left: 0.25em;
+p.rich::after {
+  background-color: var(--main);
+  left: 0px;
+  top: 9px;
+  width: calc(100% + 9px);
+  height: 3px;
 }
 
 blockquote p {
-	background-color: #EEEEEE;
+  background-color: #EEEEEE;
 }
 
 /* Table */
-
 table {
-	border-spacing: 5px;
+  border-spacing: 5px;
 }
 
 th, td {
-	padding: 5px;
+  padding: 5px;
 }
 
 th {
-	color: #FAFAFA;
-	font-size: 17px;
-	padding: 4px;
+  color: #FAFAFA;
+  font-size: 17px;
+  font-weight: 500;
+  padding: 4px;
 }
 
 th {
-	background-color: rgb(var(--bg-color-main));
+  background-color: var(--main);
 }
 
 tr.bg0 td {
-	background-color: var(--bg-color-0);
+  background-color: var(--sub-0);
 }
 
 tr.bg1 td {
-	background-color: var(--bg-color-1);
+  background-color: var(--sub-1);
 }
 
 /* Text Color */
-
 .caution {
-	color: var(--color-caution);
-	font-weight: 800;
+  color: var(--caution);
+  font-weight: 800;
 }
 
 .warn {
-	color: var(--color-warn);
-	font-weight: 800;
+  color: var(--warn);
+  font-weight: 800;
 }
 
 .code {
-    font-family: "Courier New", Consolas, monospace;
+  font-family: "Courier New", Consolas, monospace;
 }
 
 /* Tile */
-
-.tile {
-	position: absolute;
-	background-color: rgb(var(--bg-color-main));  /* a11 */
-	width: 1.15em;
-	height: 1.15em;
-	margin-top: 0.1em;
-	box-shadow:
-	0em var(--tile-offset) rgb(var(--bg-color-main)),  /* a12 */
-    calc(var(--tile-offset) * 1) var(--tile-offset) rgb(var(--bg-color-main), 0.4),   /* a21 */
-    calc(var(--tile-offset) * 1) 0em                rgb(var(--bg-color-main), 0.6),   /* a22 */
-    calc(var(--tile-offset) * 2) var(--tile-offset) rgb(var(--bg-color-main), 0.55),  /* a31 */
-    calc(var(--tile-offset) * 2) 0em                rgb(var(--bg-color-main), 0.4),   /* a32 */
-    calc(var(--tile-offset) * 3) var(--tile-offset) rgb(var(--bg-color-main), 0.3),   /* a41 */
-    calc(var(--tile-offset) * 3) 0em                rgb(var(--bg-color-main), 0.1),   /* a42 */
-    calc(var(--tile-offset) * 4) var(--tile-offset) rgb(var(--bg-color-main), 0.1),   /* a51 */
-    calc(var(--tile-offset) * 4) 0em                rgb(var(--bg-color-main), 0.05);  /* a52 */
-}
-
-.aura_tile {
-	position: absolute;
-	background-color: rgb(var(--aura-kcolor-1));  /* a11 */
-	width: 1.15em;
-	height: 1.15em;
-	margin-top: 0.1em;
-	box-shadow:
-	0em var(--tile-offset) rgb(var(--aura-kcolor-2)),  /* a12 */
-    calc(var(--tile-offset) * 1) var(--tile-offset) rgb(var(--aura-kcolor-0), 0.4),   /* a21 */
-    calc(var(--tile-offset) * 1) 0em                rgb(var(--aura-kcolor-1), 0.6),   /* a22 */
-    calc(var(--tile-offset) * 2) var(--tile-offset) rgb(var(--aura-kcolor-2), 0.55),  /* a31 */
-    calc(var(--tile-offset) * 2) 0em                rgb(var(--aura-kcolor-2), 0.4),   /* a32 */
-    calc(var(--tile-offset) * 3) var(--tile-offset) rgb(var(--aura-kcolor-0), 0.3),   /* a41 */
-    calc(var(--tile-offset) * 3) 0em                rgb(var(--aura-kcolor-1), 0.1),   /* a42 */
-    calc(var(--tile-offset) * 4) var(--tile-offset) rgb(var(--aura-kcolor-2), 0.1),   /* a51 */
-    calc(var(--tile-offset) * 4) 0em                rgb(var(--aura-kcolor-0), 0.05);  /* a52 */
+.blink_tile {
+  position: absolute;
+  background-color: rgb(var(--tile-1));  /* a11 */
+  width: 1em;
+  height: 1em;
+  animation: blink 10s linear infinite;
 }
 
 /* Boxing */
-
 .box {
-	float: left;
+  float: left;
 }
 
 .box_container {
-	overflow: hidden;
+  overflow: hidden;
 }
 
-/* custom */
+/* Animation */
+@keyframes blink {
+  0% {
+    background-color: rgb(var(--tile-1), 0.0);
+    box-shadow:
+    0em   1.2em rgb(var(--tile-2), 0.8),
+    1.2em 1.2em rgb(var(--tile-0), 0.6),
+    1.2em   0em rgb(var(--tile-1), 0.4),
+    2.4em 1.2em rgb(var(--tile-2), 0.6),
+    2.4em   0em rgb(var(--tile-2), 0.8),
+    3.6em 1.2em rgb(var(--tile-0), 1.0),
+    3.6em   0em rgb(var(--tile-1), 0.2),
+    4.8em 1.2em rgb(var(--tile-2), 0.4),
+    4.8em   0em rgb(var(--tile-0), 0.2);
+  }
+  
+  10% {
+    background-color: rgb(var(--tile-1), 0.2);
+    box-shadow:
+    0em   1.2em rgb(var(--tile-2), 0.6),
+    1.2em 1.2em rgb(var(--tile-0), 0.8),
+    1.2em   0em rgb(var(--tile-1), 0.6),
+    2.4em 1.2em rgb(var(--tile-2), 0.4),
+    2.4em   0em rgb(var(--tile-2), 1.0),
+    3.6em 1.2em rgb(var(--tile-0), 0.8),
+    3.6em   0em rgb(var(--tile-1), 0.0),
+    4.8em 1.2em rgb(var(--tile-2), 0.2),
+    4.8em   0em rgb(var(--tile-0), 0.4);
+  }
+  
+  20% {
+    background-color: rgb(var(--tile-1), 0.4);
+    box-shadow:
+    0em   1.2em rgb(var(--tile-2), 0.4),
+    1.2em 1.2em rgb(var(--tile-0), 1.0),
+    1.2em   0em rgb(var(--tile-1), 0.8),
+    2.4em 1.2em rgb(var(--tile-2), 0.2),
+    2.4em   0em rgb(var(--tile-2), 0.8),
+    3.6em 1.2em rgb(var(--tile-0), 0.6),
+    3.6em   0em rgb(var(--tile-1), 0.2),
+    4.8em 1.2em rgb(var(--tile-2), 0.0),
+    4.8em   0em rgb(var(--tile-0), 0.6);
+  }
+  
+  30% {
+    background-color: rgb(var(--tile-1), 0.6);
+    box-shadow:
+    0em   1.2em rgb(var(--tile-2), 0.2),
+    1.2em 1.2em rgb(var(--tile-0), 0.8),
+    1.2em   0em rgb(var(--tile-1), 1.0),
+    2.4em 1.2em rgb(var(--tile-2), 0.0),
+    2.4em   0em rgb(var(--tile-2), 0.6),
+    3.6em 1.2em rgb(var(--tile-0), 0.4),
+    3.6em   0em rgb(var(--tile-1), 0.4),
+    4.8em 1.2em rgb(var(--tile-2), 0.2),
+    4.8em   0em rgb(var(--tile-0), 0.8);
+  }
+  
+  40% {
+    background-color: rgb(var(--tile-1), 0.8);
+    box-shadow:
+    0em   1.2em rgb(var(--tile-2), 0.0),
+    1.2em 1.2em rgb(var(--tile-0), 0.6),
+    1.2em   0em rgb(var(--tile-1), 0.8),
+    2.4em 1.2em rgb(var(--tile-2), 0.2),
+    2.4em   0em rgb(var(--tile-2), 0.4),
+    3.6em 1.2em rgb(var(--tile-0), 0.2),
+    3.6em   0em rgb(var(--tile-1), 0.6),
+    4.8em 1.2em rgb(var(--tile-2), 0.4),
+    4.8em   0em rgb(var(--tile-0), 1.0);
+  }
+  
+  50% {
+    background-color: rgb(var(--tile-1), 1.0);
+    box-shadow:
+    0em   1.2em rgb(var(--tile-2), 0.2),
+    1.2em 1.2em rgb(var(--tile-0), 0.4),
+    1.2em   0em rgb(var(--tile-1), 0.6),
+    2.4em 1.2em rgb(var(--tile-2), 0.4),
+    2.4em   0em rgb(var(--tile-2), 0.2),
+    3.6em 1.2em rgb(var(--tile-0), 0.0),
+    3.6em   0em rgb(var(--tile-1), 0.8),
+    4.8em 1.2em rgb(var(--tile-2), 0.6),
+    4.8em   0em rgb(var(--tile-0), 0.8);
+  }
+  
+  60% {
+    background-color: rgb(var(--tile-1), 0.8);
+    box-shadow:
+    0em   1.2em rgb(var(--tile-2), 0.4),
+    1.2em 1.2em rgb(var(--tile-0), 0.2),
+    1.2em   0em rgb(var(--tile-1), 0.4),
+    2.4em 1.2em rgb(var(--tile-2), 0.6),
+    2.4em   0em rgb(var(--tile-2), 0.0),
+    3.6em 1.2em rgb(var(--tile-0), 0.2),
+    3.6em   0em rgb(var(--tile-1), 1.0),
+    4.8em 1.2em rgb(var(--tile-2), 0.8),
+    4.8em   0em rgb(var(--tile-0), 0.6);
+  }
+  
+  70% {
+    background-color: rgb(var(--tile-1), 0.6);
+    box-shadow:
+    0em   1.2em rgb(var(--tile-2), 0.6),
+    1.2em 1.2em rgb(var(--tile-0), 0.0),
+    1.2em   0em rgb(var(--tile-1), 0.2),
+    2.4em 1.2em rgb(var(--tile-2), 0.8),
+    2.4em   0em rgb(var(--tile-2), 0.2),
+    3.6em 1.2em rgb(var(--tile-0), 0.4),
+    3.6em   0em rgb(var(--tile-1), 0.8),
+    4.8em 1.2em rgb(var(--tile-2), 1.0),
+    4.8em   0em rgb(var(--tile-0), 0.4);
+  }
+  
+  80% {
+    background-color: rgb(var(--tile-1), 0.4);
+    box-shadow:
+    0em   1.2em rgb(var(--tile-2), 0.8),
+    1.2em 1.2em rgb(var(--tile-0), 0.2),
+    1.2em   0em rgb(var(--tile-1), 0.0),
+    2.4em 1.2em rgb(var(--tile-2), 1.0),
+    2.4em   0em rgb(var(--tile-2), 0.4),
+    3.6em 1.2em rgb(var(--tile-0), 0.6),
+    3.6em   0em rgb(var(--tile-1), 0.6),
+    4.8em 1.2em rgb(var(--tile-2), 0.8),
+    4.8em   0em rgb(var(--tile-0), 0.2);
+  }
+  
+  90% {
+    background-color: rgb(var(--tile-1), 0.2);
+    box-shadow:
+    0em   1.2em rgb(var(--tile-2), 1.0),
+    1.2em 1.2em rgb(var(--tile-0), 0.4),
+    1.2em   0em rgb(var(--tile-1), 0.2),
+    2.4em 1.2em rgb(var(--tile-2), 0.8),
+    2.4em   0em rgb(var(--tile-2), 0.6),
+    3.6em 1.2em rgb(var(--tile-0), 0.8),
+    3.6em   0em rgb(var(--tile-1), 0.4),
+    4.8em 1.2em rgb(var(--tile-2), 0.6),
+    4.8em   0em rgb(var(--tile-0), 0.0);
+  }
+  
+  100% {
+    background-color: rgb(var(--tile-1), 0.0);
+    box-shadow:
+    0em   1.2em rgb(var(--tile-2), 0.8),
+    1.2em 1.2em rgb(var(--tile-0), 0.6),
+    1.2em   0em rgb(var(--tile-1), 0.4),
+    2.4em 1.2em rgb(var(--tile-2), 0.6),
+    2.4em   0em rgb(var(--tile-2), 0.8),
+    3.6em 1.2em rgb(var(--tile-0), 1.0),
+    3.6em   0em rgb(var(--tile-1), 0.2),
+    4.8em 1.2em rgb(var(--tile-2), 0.4),
+    4.8em   0em rgb(var(--tile-0), 0.2);
+  }
+}
