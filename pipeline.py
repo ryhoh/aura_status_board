@@ -1,4 +1,4 @@
-from typing import Final, Dict, List, Tuple
+from typing import Final, Dict, FrozenSet, List, Tuple
 
 from mhpl_functions import available_functions
 
@@ -61,7 +61,7 @@ class Token(Symbol):
 
 class Function(Token):
     func_map: Final[Dict[str, callable]] = available_functions
-    valid_functions = frozenset(func_map.keys())
+    valid_functions: Final[FrozenSet] = frozenset(func_map.keys())
 
     def __init__(self, name: str, messages: List[Message]) -> None:
         super().__init__(name)
