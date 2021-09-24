@@ -20,15 +20,18 @@
           <li><router-link to="/">Signals</router-link></li>
           <li><router-link to="/reports">Reports</router-link></li>
           <li><router-link to="/return_message">Return Msgs</router-link></li>
+          <li v-if="token !== null && token.hasOwnProperty('access_token')">
+            <router-link to="/device_register">Deivce Register</router-link>
+          </li>
           <li><router-link to="/whats_this">What's This?</router-link></li>
         </ul>
       </nav>
 
       <!-- Login Form or Username -->
-      <div class="login_form" v-if="token !== null && token.hasOwnProperty('access_token')">
+      <div class="colored_form" v-if="token !== null && token.hasOwnProperty('access_token')">
         Manager: {{ user.username }}
       </div>
-      <div class="login_form" v-else>
+      <div class="colored_form" v-else>
         <form>
           <input type="text" placeholder="username" v-model="user.username">
           <input type="password" placeholder="password" v-model="user.password">
@@ -60,11 +63,13 @@
           Connection with the server has lost...
         </p>
       </div>
+
       <div v-show="loading">
         <p>
           Loading...
         </p>
       </div>
+
       <div v-show="!loading">
         <table>
           <tr>
@@ -142,6 +147,27 @@
       <p class="rich">
         Note: Word starting with # is function.<br>
       </p>
+    </div>
+  </script>
+
+  <!-- Device Register -->
+  <script type="text/x-template" id="device-register">
+    <div>
+      <h2>Device Register</h2>
+      <div class="colored_form">
+        <form>
+          <input type="text" placeholder="New-Device-Name" v-model="new_device_name">
+          <a v-on:click="registerDevice" v-bind:disabled="loading">Register</a>
+        </form>
+      </div>
+      <div style="padding-top: 10px">
+        <span v-if="error" class="warn">Register failed.<br><br></span>
+        <span v-if="!error && tried" class="good">Successfully registered.<br><br></span>
+        <p class="rich">
+          Note: You have to be logged in to register new device.<br>
+          Device name should be more than 3 characters.
+        </p>
+      </div>
     </div>
   </script>
 

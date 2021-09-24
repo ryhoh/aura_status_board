@@ -176,6 +176,44 @@ const returnMessageComponent = {
   }
 };
 
+const deviceRegisterComponent = {
+  template: '#device-register',
+
+  data: () => ({
+    new_device_name: null,
+    error: null,
+    loading: false,
+    tried: false,
+  }),
+
+  methods: {
+    registerDevice: function() {
+      if (this.new_device_name === null || this.new_device_name.length < 3) {
+        this.error = true;
+        return;
+      }
+
+      this.loading = true;
+      this.error = null;
+      const params = new URLSearchParams();
+      params.append('device_name', this.new_device_name);
+      axios
+        .post('/api/v2/register/device', params, {
+          'headers': { 'Authorization': 'Bearer ' + vm.token.access_token }
+        })
+        .catch(error => {
+          console.error(error);
+          this.error = error;
+        })
+        .finally(() => {
+          this.loading = false;
+          this.tried = true;
+        });
+    }
+  }
+}
+
+
 // Vue Router
 const router = new VueRouter({
   routes: [
@@ -196,6 +234,10 @@ const router = new VueRouter({
         template: '#return-message',
         ...returnMessageComponent,
       },
+    },
+    {
+      path: '/device_register',
+      component: deviceRegisterComponent,
     },
     {
       path: '/whats_this',

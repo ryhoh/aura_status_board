@@ -106,21 +106,31 @@ def api_register_return_message(
     return PlainTextResponse('successfully registered\n', status_code=200)
 
 
-@app.post('/api/register/device')
+@app.post('/api/v2/register/device')
 def api_register_device(
-    password: str = Form(...),
+    user: user_auth.UserInDB = Depends(user_auth.get_current_user),
     device_name: str = Form(...),
-    report: Optional[str] = Form(None),
-    return_message: Optional[str] = Form(None)
 ):
-    if not pw_context.verify(password, hashed_api_password):  # check credential
-        return PlainTextResponse(content='invalid password\n', status_code=403)
+    if not user:  # User authorization
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-    db.register_device(
-        device_name,
-        report,
-        return_message,
-    )
+    if len(device_name) < 3:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Device name must be more than 3 characters.",
+        )
+
+    try:
+        db.register_device(device_name, None, None)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This device is already registered.",
+        )
     return PlainTextResponse('successfully registered\n', status_code=200)
 
 

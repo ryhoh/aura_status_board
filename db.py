@@ -180,10 +180,13 @@ def register_device(dev_name: str, report: Optional[str], return_message: Option
 
     with psycopg2.connect(DATABASE) as sess:
         sess.isolation_level = ISOLATION_LEVEL_READ_COMMITTED
-        with sess.cursor() as cur:
-            cur.execute(SQL1, (
-                dev_name,
-                report if report is not None else '',
-                return_message if return_message is not None else ''
-            ))
-        sess.commit()
+        try:
+            with sess.cursor() as cur:
+                cur.execute(SQL1, (
+                    dev_name,
+                    report if report is not None else '',
+                    return_message if return_message is not None else ''
+                ))
+            sess.commit()
+        except psycopg2.errors.UniqueViolation:
+            raise ValueError('already registered device:', dev_name)

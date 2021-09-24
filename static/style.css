@@ -108,6 +108,11 @@ tr.bg1 td {
 }
 
 /* Text Color */
+.good {
+  color: #508a53;
+  font-weight: 800;
+}
+
 .caution {
   color: var(--caution);
   font-weight: 800;
@@ -129,6 +134,26 @@ tr.bg1 td {
   width: 1em;
   height: 1em;
   animation: blink 10s linear infinite;
+}
+
+/* Form */
+.colored_form {
+  display: inline-block;
+  background-color: var(--sub-1);
+  border-radius: 8px;
+  padding: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.colored_form a {
+  color: #333;
+  background-color: #fff;
+  text-decoration: none;
+  font-size: small;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 2px 4px 2px 4px;
 }
 
 /* Boxing */
