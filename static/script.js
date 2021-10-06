@@ -18,19 +18,6 @@ const getSignals = function() {  // signal 記録を Ajax で更新
     .finally(() => this.loading = false);
 };
 
-const getGpuInfo = function() {  // gpu 記録を Ajax で更新
-  axios
-    .get('/json/last_gpu_info')
-    .then(response => {
-      this.last_gpu_info = response.data;
-    })
-    .catch(error => {
-      console.error(error);
-      this.errored = true;
-    })
-    .finally(() => this.loading = false);
-};
-
 const updateReturnMessage = function(device_name, return_message, access_token) {
   const params = new URLSearchParams();
   params.append('name', device_name);
@@ -258,7 +245,6 @@ const vm = new Vue({
       username: '',
       password: '',
     },
-    foo: 'bar',
   }),
 
   methods: {
