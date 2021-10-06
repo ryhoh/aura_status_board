@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import List, Optional, Union
+from typing import Optional
 
 from fastapi import Depends, FastAPI, Form, HTTPException, status
 from fastapi.encoders import jsonable_encoder
@@ -22,13 +22,13 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get('/')
-async def root():
+async def root() -> FileResponse:
     return FileResponse('static/index.html')
 
 
 @app.get('/json/signals')
-def json_last_signal_ts():
-    devices: List[Device] = db.select_devices()
+def json_last_signal_ts() -> JSONResponse:
+    devices: list[Device] = db.select_devices()
     devices = [device.dict() for device in devices]
     for device in devices:
         device['last_heartbeat_timestamp'] = str(device['last_heartbeat_timestamp'])
@@ -40,7 +40,7 @@ def api_heartbeat(
     password: str = Form(...),
     name: str = Form(...),
     nvidia_smi: Optional[str] = Form(None)
-):
+) -> PlainTextResponse:
     if not pw_context.verify(password, hashed_api_password):  # check credential
         return PlainTextResponse(content='invalid password\n', status_code=403)
 
@@ -65,7 +65,7 @@ def api_heartbeat(
     password: str = Form(...),
     device_name: str = Form(...),
     report: Optional[str] = Form(None)
-):
+) -> PlainTextResponse:
     if not pw_context.verify(password, hashed_api_password):  # check credential
         return PlainTextResponse(content='invalid password\n', status_code=403)
 
@@ -90,7 +90,7 @@ def api_register_return_message(
     user: user_auth.UserInDB = Depends(user_auth.get_current_user),
     name: str = Form(...),
     return_message: str = Form(...)
-):
+) -> PlainTextResponse|HTTPException:
     if not user:  # User authorization
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -110,7 +110,7 @@ def api_register_return_message(
 def api_register_device(
     user: user_auth.UserInDB = Depends(user_auth.get_current_user),
     device_name: str = Form(...),
-):
+) -> PlainTextResponse|HTTPException:
     if not user:  # User authorization
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -135,8 +135,10 @@ def api_register_device(
 
 
 @app.post('/api/token')
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user: Union[user_auth.UserInDB, bool] = user_auth.authenticate_user(form_data.username, form_data.password)
+def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends()
+) -> JSONResponse|HTTPException:
+    user: user_auth.UserInDB|bool = user_auth.authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -148,10 +150,10 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
         data={"sub": user.username}, expires_delta=access_token_expires
     )
 
-    return {
+    return JSONResponse ({
         "access_token": access_token,
         "token_type": "bearer",
-    }
+    })
 
 
 if __name__ == '__main__':

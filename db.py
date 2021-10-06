@@ -1,6 +1,5 @@
 import datetime
 import os
-from typing import List, Optional, Set, Tuple
 
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_READ_COMMITTED
@@ -30,7 +29,7 @@ def read_JWT_secret() -> str:
     with psycopg2.connect(DATABASE) as conn:
         with conn.cursor() as cur:
             cur.execute("select secret from jwt;")
-            res: List[str] = cur.fetchone()
+            res: list[str] = cur.fetchone()
             return res[0]
 
 
@@ -56,7 +55,7 @@ def read_password_from_users(name: str) -> bytes:
             return res[0].tobytes()
 
 
-def select_devices() -> List[Device]:
+def select_devices() -> list[Device]:
     """
     :return: list of Device
     """
@@ -70,7 +69,7 @@ def select_devices() -> List[Device]:
         sess.isolation_level = ISOLATION_LEVEL_READ_COMMITTED
         with sess.cursor() as cur:
             cur.execute(SQL)
-            res: List[Tuple] = cur.fetchall()
+            res: list[tuple] = cur.fetchall()
     return [Device(**{
         'device_name': tp[0],
         'last_heartbeat_timestamp': gmt2jst(tp[1]),
@@ -93,7 +92,7 @@ def select_report(dev_name: str) -> str:
         sess.isolation_level = ISOLATION_LEVEL_READ_COMMITTED
         with sess.cursor() as cur:
             cur.execute(SQL, (dev_name,))
-            res: Tuple[str] = cur.fetchone()
+            res: tuple[str] = cur.fetchone()
     return res[0]  # return single value
 
 
@@ -111,11 +110,11 @@ def select_return_message(dev_name: str) -> str:
         sess.isolation_level = ISOLATION_LEVEL_READ_COMMITTED
         with sess.cursor() as cur:
             cur.execute(SQL, (dev_name,))
-            res: Tuple[str] = cur.fetchone()
+            res: tuple[str] = cur.fetchone()
     return res[0]  # return single value
 
 
-def select_device_reports() -> List[Tuple]:
+def select_device_reports() -> list[tuple]:
     """
     :return: list of (device_name, report)
     """
@@ -133,7 +132,7 @@ def select_device_reports() -> List[Tuple]:
     return res
 
 
-def post_heartbeat(dev_name: str, report: Optional[str]):
+def post_heartbeat(dev_name: str, report: str|None):
     SQL1 = """
     SELECT device_name
       FROM devices;
@@ -150,7 +149,7 @@ def post_heartbeat(dev_name: str, report: Optional[str]):
         sess.isolation_level = ISOLATION_LEVEL_READ_COMMITTED
         with sess.cursor() as cur:
             cur.execute(SQL1)
-            valid_devices: Set[str] = set(tp[0] for tp in cur.fetchall())
+            valid_devices: set[str] = set(tp[0] for tp in cur.fetchall())
             if dev_name not in valid_devices:
                 raise ValueError('invalid device name')
             
@@ -172,7 +171,7 @@ def update_return_message(dev_name: str, return_message: str):
         sess.commit()
 
 
-def register_device(dev_name: str, report: Optional[str], return_message: Optional[str]):
+def register_device(dev_name: str, report: str|None, return_message: str|None):
     SQL1 = """
     INSERT INTO public.devices (device_name, report, return_message) VALUES
            (%s, %s, %s);

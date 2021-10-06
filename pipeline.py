@@ -1,4 +1,4 @@
-from typing import Final, Dict, FrozenSet, List, Tuple
+from typing import Final
 
 from mhpl_functions import available_functions
 
@@ -32,8 +32,8 @@ class Symbol:
 
 
 class Message(Symbol):
-    def __init__(self, tokens: List["Token"]) -> None:
-        self.tokens: Final[List["Token"]] = tokens
+    def __init__(self, tokens: list["Token"]) -> None:
+        self.tokens: Final[list["Token"]] = tokens
 
     def __repr__(self) -> str:
         return '%s(tokens=%s)' % (self.__class__.__name__, self.tokens)
@@ -60,10 +60,10 @@ class Token(Symbol):
 
 
 class Function(Token):
-    func_map: Final[Dict[str, callable]] = available_functions
-    valid_functions: Final[FrozenSet] = frozenset(func_map.keys())
+    func_map: Final[dict[str, callable]] = available_functions
+    valid_functions: Final[frozenset[str]] = frozenset(func_map.keys())
 
-    def __init__(self, name: str, messages: List[Message]) -> None:
+    def __init__(self, name: str, messages: list[Message]) -> None:
         super().__init__(name)
         self.messages = messages
 
@@ -133,7 +133,7 @@ def find_closing_parenthesis_idx(text: str, start_left_paren: int) -> int:
     raise ParseError('Unclosed parentheses:', text)
 
 
-def build_function(text: str, begin_idx: int) -> Tuple[Function, int]:
+def build_function(text: str, begin_idx: int) -> tuple[Function, int]:
     for left_paren_idx, left_c in enumerate(text[begin_idx + 1:], start=begin_idx + 1):
         if left_c == '(':
             right_paren_idx = find_closing_parenthesis_idx(text, left_paren_idx)

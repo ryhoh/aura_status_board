@@ -1,4 +1,3 @@
-from typing import List
 import datetime as dt
 import random
 
@@ -19,7 +18,7 @@ Pipeline fuction must satisfy below:
 
 """
 def get_alive_device_n() -> str:
-    devices: List[db.Device] = db.select_devices()
+    devices: list[db.Device] = db.select_devices()
     return str(
         sum(
             dt.datetime.now(tz=dt.timezone(offset=dt.timedelta(hours=9)))
