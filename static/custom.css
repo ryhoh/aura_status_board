@@ -70,3 +70,7 @@ nav a:hover, header a:hover {
   margin-top: 16px;
   margin-bottom: 16px;
 }
+
+th, td {
+  border-radius: 12px;
+}

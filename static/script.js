@@ -50,6 +50,9 @@ const hbSignalsComponent = {
       const minutes = Math.trunc(total_seconds % 3600 / 60);
       const seconds = Math.trunc(total_seconds % 60);
 
+      if (total_seconds < 600)
+        return '🆗 Online'
+
       let res = `${seconds}s`;
       if (minutes) res = `${minutes}m ` + res;
       if (hours) res = `${hours}h ` + res;
