@@ -105,6 +105,7 @@ def culc_divide(a: str, b: str) -> str:
 
 available_functions = {
     'alives': get_alive_device_n,
+    'available_devices': get_available_device_n,
     'devices': get_device_n,
     'deads': get_dead_device_n,
     'report': get_report,
