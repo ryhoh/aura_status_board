@@ -18,6 +18,7 @@ class Device(BaseModel):
     last_heartbeat_timestamp: datetime.datetime
     report: str
     return_message: str
+    is_valid: bool
 
 
 def read_JWT_secret() -> str:
@@ -60,7 +61,7 @@ def select_devices() -> list[Device]:
     :return: list of Device
     """
     SQL = """
-    SELECT device_name, last_heartbeat, report, return_message
+    SELECT device_name, last_heartbeat, report, return_message, is_valid
       FROM devices
      ORDER BY device_name asc;  -- this sort should be in javascript
     """

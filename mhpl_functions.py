@@ -29,6 +29,13 @@ def get_alive_device_n() -> str:
     )
 
 
+def get_available_device_n() -> str:
+    devices: list[db.Device] = db.select_devices()
+    return str(
+        sum(device.is_valid for device in devices)
+    )
+
+
 def get_device_n() -> str:
     return str(len(db.select_devices()))
 
