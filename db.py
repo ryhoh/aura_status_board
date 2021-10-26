@@ -76,6 +76,7 @@ def select_devices() -> list[Device]:
         'last_heartbeat_timestamp': gmt2jst(tp[1]),
         'report': tp[2],
         'return_message': tp[3],
+        'is_valid': tp[4],
     }) for tp in res]
 
 
