@@ -2,7 +2,7 @@ th, td {
   width: 12em;
 }
 
-.datetime, .time {
+.datetime, .time, .active {
   text-align: center;
 }
 
@@ -72,5 +72,9 @@ nav a:hover, header a:hover {
 }
 
 th, td {
-  border-radius: 12px;
+  border-radius: 2px;
+}
+
+#barchart {
+  border: 1px dotted #000;
 }

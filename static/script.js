@@ -1,15 +1,98 @@
+'use strict';
+
+const HISTORY_LEN = 10;
+
 const str2Date = (unix_time) => (new Date(unix_time));
 const secondsFromNow = (date) => Math.trunc((Date.now() - date) / 1000);
 
-const getSignals = function() {  // signal 記録を Ajax で更新
+// d3.js
+let svg = null;
+function barChart(dataset, device_n) {
+  const width = 600;
+  const height = 250;
+  
+  const xScale = d3.scaleBand()
+    .domain(d3.range(dataset.length))
+    .rangeRound([0, width])
+    .paddingInner(0.05);
+
+  const yScale = d3.scaleLinear()
+    .domain([0, device_n])
+    .range([0, height]);
+
+  if (svg === null) {
+    svg = d3.select("#barchart")
+      .attr("width", width)
+      .attr("height", height);
+      
+    svg.selectAll("rect")
+      .data(dataset)
+      .enter()
+      .append("rect")
+      .attr("x", (d, i) => xScale(i))
+      .attr("y", (d) => height - yScale(d))
+      .attr("width", xScale.bandwidth())
+      .attr("height", (d) => yScale(d))
+      .attr("fill", (d) => "var(--main)");
+
+    svg.selectAll("text")
+      .data(dataset)
+      .enter()
+      .append("text")
+      .text((d) => d)
+      .attr("text-anchor", "middle")
+      .attr("x", (d, i) => xScale(i) + xScale.bandwidth() / 2)
+      .attr("y", (d) => height - yScale(d) + 14)
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "11px")
+      .attr("fill", "white");
+    return ;
+  }
+
+  svg.selectAll("rect")
+    .data(dataset)
+    .attr("x", (d, i) => xScale(i))
+    .attr("y", (d) => height - yScale(d))
+    .attr("width", xScale.bandwidth())
+    .attr("height", (d) => yScale(d))
+    .attr("fill", (d) => "var(--main)");
+
+  svg.selectAll("text")
+    .data(dataset)
+    .text((d) => d)
+    .attr("text-anchor", "middle")
+    .attr("x", (d, i) => xScale(i) + xScale.bandwidth() / 2)
+    .attr("y", (d) => height - yScale(d) + 14)
+    .attr("font-family", "sans-serif")
+    .attr("font-size", "11px")
+    .attr("fill", "white");
+}
+
+function getSignals() {  // signal 記録を Ajax で更新
   axios
     .get('/json/signals')
     .then(response => {
-      this.last_signal_ts = response.data;
+      // 加工
+      this.last_signal_ts = response.data.devices;
       this.last_signal_ts.forEach((item, i) => {
         item.timestamp = str2Date(item.last_heartbeat_timestamp);
         item.past_seconds = secondsFromNow(item.timestamp);
       });
+
+      // ok な数を数えて記録
+      let active_n = 0;
+      for (let item of this.last_signal_ts) {
+        if (item.past_seconds < 600) {
+          ++active_n;
+        }
+      }
+      for (let i = 1; i < HISTORY_LEN; ++i) {
+        this.active_num_history[i-1] = this.active_num_history[i];
+      }
+      this.active_num_history[HISTORY_LEN-1] = active_n;
+      // console.log(this.active_num_history);
+      console.log(response.data);
+      barChart(this.active_num_history, this.last_signal_ts.length);
     })
     .catch(error => {
       console.error(error);
@@ -18,7 +101,7 @@ const getSignals = function() {  // signal 記録を Ajax で更新
     .finally(() => this.loading = false);
 };
 
-const updateReturnMessage = function(device_name, return_message, access_token) {
+function updateReturnMessage(device_name, return_message, access_token) {
   const params = new URLSearchParams();
   params.append('name', device_name);
   params.append('return_message', return_message);
@@ -37,6 +120,7 @@ const updateReturnMessage = function(device_name, return_message, access_token) 
 const hbSignalsComponent = {
   data: () => ({
     last_signal_ts: null,
+    active_num_history: new Array(HISTORY_LEN).fill(0),
     loading: true,
     errored: false,
     update_interval: null,
@@ -50,8 +134,9 @@ const hbSignalsComponent = {
       const minutes = Math.trunc(total_seconds % 3600 / 60);
       const seconds = Math.trunc(total_seconds % 60);
 
-      if (total_seconds < 600)
+      if (total_seconds < 600) {
         return '🆗 Online'
+      }
 
       let res = `${seconds}s`;
       if (minutes) res = `${minutes}m ` + res;
@@ -60,8 +145,9 @@ const hbSignalsComponent = {
       return res;
     },
     date2readable: (date) => {
-      if (date === null)
+      if (date === null) {
         return '-';
+      }
       return `${date.getFullYear()}/${('0' + (date.getMonth() + 1)).slice(-2)}/${('0' + date.getDate()).slice(-2)} \
         ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
     },
@@ -81,7 +167,7 @@ const hbSignalsComponent = {
 
   mounted() {
     setTimeout(getSignals.bind(this), 0);
-    this.ajax_interval = setInterval(getSignals.bind(this), 300000);  // 5 minutes
+    this.ajax_interval = setInterval(getSignals.bind(this), 60000);  // 1 minutes
 
     this.update_interval = setInterval((function() {  // 経過時間を1秒ごとに更新
       this.last_signal_ts.forEach((item, i) => {
@@ -131,9 +217,9 @@ const returnMessageComponent = {
   }),
 
   methods: {
-    toggleReturnMsgEditor: function (device_idx) {
-      cur_device_name = this.last_signal_ts[device_idx].device_name;
-      cur_return_message = this.last_signal_ts[device_idx].return_message;
+    toggleReturnMsgEditor: function(device_idx) {
+      const cur_device_name = this.last_signal_ts[device_idx].device_name;
+      const cur_return_message = this.last_signal_ts[device_idx].return_message;
       if (this.editing_device_idx === null) {  // まだどれも編集していないなら
         this.editing_device_idx = device_idx;
         this.editing_text_area = cur_return_message;

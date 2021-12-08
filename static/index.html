@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://unpkg.com/vue-router@3.5.1/dist/vue-router.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
   <div id="vue_app">
@@ -76,6 +77,7 @@
             <th class="name">Device Name</th>
             <th class="datetime">Last Signal (JST)</th>
             <th class="time">Elapsed Time</th>
+            <th class="active">isActive</th>
           </tr>
           <tr v-for="(record, idx) in last_signal_ts" :key="record.name" v-bind:class="'bg' + idx % 2">
             <td class="name">{{ record.device_name }}</td>
@@ -86,9 +88,13 @@
                 {{ getPastSeconds(idx) | secondsDiff2Readable }}
               </span>
             </td>
+            <td class="active">{{ record.is_active }}</td>
           </tr>
         </table>
       </div>
+
+      <h2>History of Active Device Number</h2>
+      <svg id="barchart"></svg>
     </div>
   </script>
 

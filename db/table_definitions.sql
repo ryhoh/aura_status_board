@@ -8,7 +8,7 @@ CREATE TABLE public.devices (
        last_heartbeat TIMESTAMP(0) NULL,
        report VARCHAR(4096) DEFAULT '' NOT NULL,
        return_message VARCHAR(4096) DEFAULT '' NOT NULL,
-       is_valid BOOLEAN DEFAULT TRUE NOT NULL,
+       is_active BOOLEAN DEFAULT TRUE NOT NULL,
        CONSTRAINT devices_pk PRIMARY KEY (device_id),
        CONSTRAINT devices_un UNIQUE (device_name)
 );
@@ -21,6 +21,13 @@ CREATE TABLE public.users (
        user_name VARCHAR(16) NOT NULL,
        hashed_password BYTEA NOT NULL,
        CONSTRAINT users_pk PRIMARY KEY (user_name)
+);
+
+CREATE TABLE public.heartbeat_log (
+       device_id int4 NOT NULL,
+       heartbeat_ts TIMESTAMP(0) NOT NULL,
+       CONSTRAINT heartbeat_log_pk PRIMARY KEY (device_id, heartbeat_ts),
+       CONSTRAINT heartbeat_log_fk_device_id FOREIGN KEY (device_id) REFERENCES public.devices(device_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
@@ -36,6 +43,12 @@ INSERT INTO public.devices (device_name,last_heartbeat,report,return_message) VA
 | NVIDIA-SMI 450.102.04   Driver Version: 450.102.04   CUDA Version: 11.0     |
 |------------------------------- ---------------------- ---------------------- ','Loooooooooooooong message!'),
        ('AGP093','2021-03-12 23:30:25','','');
+
+INSERT INTO public.heartbeat_log (device_id, heartbeat_ts) VALUES
+       (1, current_timestamp),
+       (2, current_timestamp),
+       (3, current_timestamp),
+       (4, '2021-03-12 23:30:25');
 
 INSERT INTO public.jwt VALUES
        ('cc125635c56e2b29e842b7c520a5304eda31c3f0d409c09a911bcc5e742dcd60');

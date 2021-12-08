@@ -32,7 +32,30 @@ def json_last_signal_ts() -> JSONResponse:
     devices = [device.dict() for device in devices]
     for device in devices:
         device['last_heartbeat_timestamp'] = str(device['last_heartbeat_timestamp'])
-    return JSONResponse(jsonable_encoder(devices))
+    
+    retval = {
+        'devices': devices,
+        'heartbeat_log': db.select_heartbeat_log_summation(),
+    }
+    return JSONResponse(jsonable_encoder(retval))
+
+
+@app.post('/devices/active')
+def update_is_active(
+    user: user_auth.UserInDB = Depends(user_auth.get_current_user),
+    device_name: str = Form(...),
+    is_active: str = Form(...),
+) -> PlainTextResponse:
+    if not user:  # User authorization
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    active = False if is_active.lower() == 'false' else True
+    db.update_is_active(device_name, active)
+    return PlainTextResponse('successfully registered\n', status_code=200)
 
 
 @app.post('/api/heartbeat')
@@ -71,6 +94,7 @@ def api_heartbeat(
 
     try:
         db.post_heartbeat(device_name, report)
+        db.insert_heartbeat_log(device_name)
     except ValueError:
         return PlainTextResponse(content='invalid name\n', status_code=400)
     
