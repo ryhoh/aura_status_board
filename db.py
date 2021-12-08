@@ -101,6 +101,8 @@ def select_heartbeat_log_summation(period_of_hour: int = 24):
 
     if len(res) > data_max_size:
         res = res[len(res) - data_max_size:]
+    elif len(res) < data_max_size:
+        res = [['', 0] for _ in range(data_max_size - len(res))] + res
     return res
 
 
