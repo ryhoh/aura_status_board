@@ -79,20 +79,11 @@ function getSignals() {  // signal 記録を Ajax で更新
         item.past_seconds = secondsFromNow(item.timestamp);
       });
 
-      // ok な数を数えて記録
-      let active_n = 0;
-      for (let item of this.last_signal_ts) {
-        if (item.past_seconds < 600) {
-          ++active_n;
-        }
-      }
-      for (let i = 1; i < HISTORY_LEN; ++i) {
-        this.active_num_history[i-1] = this.active_num_history[i];
-      }
-      this.active_num_history[HISTORY_LEN-1] = active_n;
-      // console.log(this.active_num_history);
-      console.log(response.data);
-      barChart(this.active_num_history, this.last_signal_ts.length);
+      // 直近の Online 集計データを可視化
+      barChart(
+        response.data.heartbeat_log.map((item, i) => item[1]),
+        this.last_signal_ts.length
+      );
     })
     .catch(error => {
       console.error(error);
