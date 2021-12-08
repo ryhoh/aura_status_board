@@ -69,6 +69,7 @@ def api_heartbeat(
 
     try:
         db.post_heartbeat(name, nvidia_smi)
+        db.insert_heartbeat_log(name)
     except ValueError:
         return PlainTextResponse(content='invalid name\n', status_code=400)
     
