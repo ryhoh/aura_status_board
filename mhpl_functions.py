@@ -32,7 +32,7 @@ def get_alive_device_n() -> str:
 def get_available_device_n() -> str:
     devices: list[db.Device] = db.select_devices()
     return str(
-        sum(device.is_valid for device in devices)
+        sum(device.is_active for device in devices)
     )
 
 
