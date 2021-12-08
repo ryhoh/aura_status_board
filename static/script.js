@@ -8,8 +8,8 @@ const secondsFromNow = (date) => Math.trunc((Date.now() - date) / 1000);
 // d3.js
 let svg = null;
 function barChart(dataset, device_n) {
-  const width = 600;
-  const height = 250;
+  const width = 840;
+  const height = 320;
   
   const xScale = d3.scaleBand()
     .domain(d3.range(dataset.length))
@@ -51,6 +51,9 @@ function barChart(dataset, device_n) {
 
   svg.selectAll("rect")
     .data(dataset)
+    .transition()
+    .delay((d, i) => i / dataset.length * 1000)
+    .duration(500)
     .attr("x", (d, i) => xScale(i))
     .attr("y", (d) => height - yScale(d))
     .attr("width", xScale.bandwidth())
