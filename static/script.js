@@ -18,7 +18,16 @@ function barChart(dataset, device_n, svg) {
     .domain([0, device_n])
     .range([0, height]);
 
-  const data2color = (d) => "rgb(0, " + Math.round(d / device_n * 220) + ", 0)";
+  const datetime2Color = function(datetime) {
+    const hour = parseInt(datetime.substr(11, 2));
+    const brightness = 1 - Math.abs(12 - hour) / 12;  // [0, 1]
+    return "rgb("
+      + (Math.round(brightness * (135 - 25))  + 25 ) + ", "
+      + (Math.round(brightness * (206 - 25))  + 25 ) + ", "
+      + (Math.round(brightness * (250 - 112)) + 112) + ")";
+  };
+
+  const datetime2Readable = (datetime) => `${datetime.substr(0, 10)} ${datetime.substr(11, 5)} JST`;
 
   if (svg === null) {  // First time
     svg = d3.select("#barchart")
@@ -33,25 +42,24 @@ function barChart(dataset, device_n, svg) {
       .attr("y", (d) => height - yScale(d[1]))
       .attr("width", xScale.bandwidth())
       .attr("height", (d) => yScale(d[1]))
-      .attr("fill", (d) => data2color(d[1]))
+      .attr("fill", (d) => datetime2Color(d[0]))
       .on("mouseover", function(event, d) {
         // Bar Color
-        d3.select(this).attr("fill", "pink");
+        d3.select(this).attr("fill", "rgb(238, 232, 170)");
         // Tooltip
-        console.log(d[1]);
         const tooltip = d3.select("#tooltip")
           .style("left", event.pageX + "px")
           .style("top", event.pageY + "px");
         tooltip
           .select("#tooltip_datetime")
-          .text(d[0]);
+          .text(datetime2Readable(d[0]))
         tooltip
           .select("#tooltip_value")
           .text(`${d[1]} device(s) was online.`);
         d3.select("#tooltip").style("opacity", 1);
       })
       .on("mouseout", function(_) {
-        d3.select(this).transition().duration(250).attr("fill", (d) => data2color(d[1]));
+        d3.select(this).transition().duration(250).attr("fill", (d) => datetime2Color(d[0]));
         d3.select("#tooltip").style("opacity", 0);
       });
 
@@ -80,10 +88,10 @@ function barChart(dataset, device_n, svg) {
     .attr("y", (d) => height - yScale(d[1]))
     .attr("width", xScale.bandwidth())
     .attr("height", (d) => yScale(d[1]))
-    .attr("fill", (d) => data2color(d[1]))
+    .attr("fill", (d) => datetime2Color(d[0]))
     .on("mouseover", function(event, d) {
       // Bar Color
-      d3.select(this).attr("fill", "pink");
+      d3.select(this).attr("fill", "rgb(238, 232, 170)");
       // Tooltip
       console.log(d[1]);
       const tooltip = d3.select("#tooltip")
@@ -91,14 +99,14 @@ function barChart(dataset, device_n, svg) {
         .style("top", event.pageY + "px");
       tooltip
         .select("#tooltip_datetime")
-        .text(d[0]);
+        .text(datetime2Readable(d[0]))
       tooltip
         .select("#tooltip_value")
         .text(`${d[1]} device(s) was online.`);
       d3.select("#tooltip").style("opacity", 1);
     })
     .on("mouseout", function(_) {
-      d3.select(this).transition().duration(250).attr("fill", (d) => data2color(d[1]));
+        d3.select(this).transition().duration(250).attr("fill", (d) => datetime2Color(d[0]));
       d3.select("#tooltip").style("opacity", 0);
     });
 
