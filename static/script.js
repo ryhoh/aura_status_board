@@ -6,8 +6,7 @@ const str2Date = (unix_time) => (new Date(unix_time));
 const secondsFromNow = (date) => Math.trunc((Date.now() - date) / 1000);
 
 // d3.js
-let svg = null;
-function barChart(dataset, device_n) {
+function barChart(dataset, device_n, svg) {
   const width = 840;
   const height = 320;
   
@@ -71,7 +70,7 @@ function barChart(dataset, device_n) {
     .attr("fill", "white");
 }
 
-function getSignals() {  // signal 記録を Ajax で更新
+function getSignals(use_barchart) {  // signal 記録を Ajax で更新
   axios
     .get('/json/signals')
     .then(response => {
@@ -83,10 +82,13 @@ function getSignals() {  // signal 記録を Ajax で更新
       });
 
       // 直近の Online 集計データを可視化
-      barChart(
-        response.data.heartbeat_log.map((item, i) => item[1]),
-        this.last_signal_ts.length
-      );
+      if (use_barchart) {
+        barChart(
+          response.data.heartbeat_log.map((item, i) => item[1]),
+          this.last_signal_ts.length,
+          this.svg,
+        );
+      }
     })
     .catch(error => {
       console.error(error);
@@ -114,7 +116,7 @@ function updateReturnMessage(device_name, return_message, access_token) {
 const hbSignalsComponent = {
   data: () => ({
     last_signal_ts: null,
-    active_num_history: new Array(HISTORY_LEN).fill(0),
+    svg: null,  // for d3.js
     loading: true,
     errored: false,
     update_interval: null,
@@ -160,8 +162,8 @@ const hbSignalsComponent = {
   },
 
   mounted() {
-    setTimeout(getSignals.bind(this), 0);
-    this.ajax_interval = setInterval(getSignals.bind(this), 60000);  // 1 minutes
+    setTimeout(getSignals.bind(this), 0, true);
+    this.ajax_interval = setInterval(getSignals.bind(this), 60000, true);  // 1 minutes
 
     this.update_interval = setInterval((function() {  // 経過時間を1秒ごとに更新
       this.last_signal_ts.forEach((item, i) => {
@@ -190,8 +192,8 @@ const reportComponent = {
   }),
 
   mounted() {
-    setTimeout(getSignals.bind(this), 0);
-    this.ajax_interval = setInterval(getSignals.bind(this), 300000);  // 5 minutes
+    setTimeout(getSignals.bind(this), 0, false);
+    this.ajax_interval = setInterval(getSignals.bind(this), 300000, false);  // 5 minutes
   },
 
   destroyed() {
@@ -242,7 +244,7 @@ const returnMessageComponent = {
   },
 
   mounted() {
-    setTimeout(getSignals.bind(this), 0);
+    setTimeout(getSignals.bind(this), 0, false);
   }
 };
 
