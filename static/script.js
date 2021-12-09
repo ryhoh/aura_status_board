@@ -1,11 +1,10 @@
 'use strict';
 
-const HISTORY_LEN = 10;
-
 const str2Date = (unix_time) => (new Date(unix_time));
 const secondsFromNow = (date) => Math.trunc((Date.now() - date) / 1000);
 
 // d3.js
+d3.select("#tooltip").style("opacity", 0);
 function barChart(dataset, device_n, svg) {
   const width = 840;
   const height = 320;
@@ -19,7 +18,9 @@ function barChart(dataset, device_n, svg) {
     .domain([0, device_n])
     .range([0, height]);
 
-  if (svg === null) {
+  const data2color = (d) => "rgb(0, " + Math.round(d / device_n * 220) + ", 0)";
+
+  if (svg === null) {  // First time
     svg = d3.select("#barchart")
       .attr("width", width)
       .attr("height", height);
@@ -28,36 +29,78 @@ function barChart(dataset, device_n, svg) {
       .data(dataset)
       .enter()
       .append("rect")
-      .attr("x", (d, i) => xScale(i))
-      .attr("y", (d) => height - yScale(d))
+      .attr("x", (_, i) => xScale(i))
+      .attr("y", (d) => height - yScale(d[1]))
       .attr("width", xScale.bandwidth())
-      .attr("height", (d) => yScale(d))
-      .attr("fill", (d) => "var(--main)");
+      .attr("height", (d) => yScale(d[1]))
+      .attr("fill", (d) => data2color(d[1]))
+      .on("mouseover", function(event, d) {
+        // Bar Color
+        d3.select(this).attr("fill", "pink");
+        // Tooltip
+        console.log(d[1]);
+        const tooltip = d3.select("#tooltip")
+          .style("left", event.pageX + "px")
+          .style("top", event.pageY + "px");
+        tooltip
+          .select("#tooltip_datetime")
+          .text(d[0]);
+        tooltip
+          .select("#tooltip_value")
+          .text(`${d[1]} device(s) was online.`);
+        d3.select("#tooltip").style("opacity", 1);
+      })
+      .on("mouseout", function(_) {
+        d3.select(this).transition().duration(250).attr("fill", (d) => data2color(d[1]));
+        d3.select("#tooltip").style("opacity", 0);
+      });
 
     svg.selectAll("text")
       .data(dataset)
       .enter()
       .append("text")
-      .text((d) => d)
+      .text((d) => d[1])
       .attr("text-anchor", "middle")
-      .attr("x", (d, i) => xScale(i) + xScale.bandwidth() / 2)
-      .attr("y", (d) => height - yScale(d) + 14)
+      .attr("x", (_, i) => xScale(i) + xScale.bandwidth() / 2)
+      .attr("y", (d) => height - yScale(d[1]) + 14)
       .attr("font-family", "sans-serif")
       .attr("font-size", "11px")
-      .attr("fill", "white");
+      .attr("fill", "white")
+      .attr("pointer-events", "none");
     return ;
   }
 
+  // on Update
   svg.selectAll("rect")
     .data(dataset)
     .transition()
-    .delay((d, i) => i / dataset.length * 1000)
+    .delay((_, i) => i / dataset.length * 1000)
     .duration(500)
-    .attr("x", (d, i) => xScale(i))
-    .attr("y", (d) => height - yScale(d))
+    .attr("x", (_, i) => xScale(i))
+    .attr("y", (d) => height - yScale(d[1]))
     .attr("width", xScale.bandwidth())
-    .attr("height", (d) => yScale(d))
-    .attr("fill", (d) => "var(--main)");
+    .attr("height", (d) => yScale(d[1]))
+    .attr("fill", (d) => data2color(d[1]))
+    .on("mouseover", function(event, d) {
+      // Bar Color
+      d3.select(this).attr("fill", "pink");
+      // Tooltip
+      console.log(d[1]);
+      const tooltip = d3.select("#tooltip")
+        .style("left", event.pageX + "px")
+        .style("top", event.pageY + "px");
+      tooltip
+        .select("#tooltip_datetime")
+        .text(d[0]);
+      tooltip
+        .select("#tooltip_value")
+        .text(`${d[1]} device(s) was online.`);
+      d3.select("#tooltip").style("opacity", 1);
+    })
+    .on("mouseout", function(_) {
+      d3.select(this).transition().duration(250).attr("fill", (d) => data2color(d[1]));
+      d3.select("#tooltip").style("opacity", 0);
+    });
 
   svg.selectAll("text")
     .data(dataset)
@@ -67,7 +110,8 @@ function barChart(dataset, device_n, svg) {
     .attr("y", (d) => height - yScale(d) + 14)
     .attr("font-family", "sans-serif")
     .attr("font-size", "11px")
-    .attr("fill", "white");
+    .attr("fill", "white")
+    .attr("pointer-events", "none");
 }
 
 function getSignals(use_barchart) {  // signal 記録を Ajax で更新
@@ -84,7 +128,8 @@ function getSignals(use_barchart) {  // signal 記録を Ajax で更新
       // 直近の Online 集計データを可視化
       if (use_barchart) {
         barChart(
-          response.data.heartbeat_log.map((item, i) => item[1]),
+          // response.data.heartbeat_log.map((item, i) => item[1]),
+          response.data.heartbeat_log,
           this.last_signal_ts.length,
           this.svg,
         );

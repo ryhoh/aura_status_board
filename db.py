@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 
 DATABASE = os.environ.get('DATABASE_URL') or 'postgresql://web:web@localhost:5432/status_board'
-HEARTBEAT_LOG_INTERVAL = 15
+HEARTBEAT_LOG_INTERVAL_MINUTES = 60
 
 
 def gmt2jst(dt: datetime.datetime):
@@ -91,7 +91,7 @@ def select_heartbeat_log_summation(period_of_hour: int = 24):
     """
 
     start_dt = datetime.datetime.now() - datetime.timedelta(hours=period_of_hour)
-    data_max_size = int(60 / HEARTBEAT_LOG_INTERVAL * 24)
+    data_max_size = int(60 / HEARTBEAT_LOG_INTERVAL_MINUTES * 24)
 
     with psycopg2.connect(DATABASE) as sess:
         sess.isolation_level = ISOLATION_LEVEL_READ_COMMITTED
@@ -237,7 +237,7 @@ def register_device(dev_name: str, report: str|None, return_message: str|None):
             raise ValueError('already registered device:', dev_name)
 
 
-def insert_heartbeat_log(dev_name: str, minute_interval: int = HEARTBEAT_LOG_INTERVAL):
+def insert_heartbeat_log(dev_name: str, minute_interval: int = HEARTBEAT_LOG_INTERVAL_MINUTES):
     now = datetime.datetime.now()
     now = now.replace(microsecond=0, second=0, minute=(now.minute - now.minute % minute_interval))
 

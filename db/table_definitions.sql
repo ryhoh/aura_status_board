@@ -46,9 +46,12 @@ INSERT INTO public.devices (device_name,last_heartbeat,report,return_message) VA
 
 INSERT INTO public.heartbeat_log (device_id, heartbeat_ts) VALUES
        (1, current_timestamp),
+       (1, current_timestamp - interval '2 hour'),
+       (1, current_timestamp - interval '1 hour'),
        (2, current_timestamp),
+       (2, current_timestamp - interval '1 hour'),
        (3, current_timestamp),
-       (4, '2021-03-12 23:30:25');
+       (4, '2021-03-12 23:30:00');
 
 INSERT INTO public.jwt VALUES
        ('cc125635c56e2b29e842b7c520a5304eda31c3f0d409c09a911bcc5e742dcd60');
