@@ -273,6 +273,6 @@ def clean_heartbeat_log():
         sess.isolation_level = ISOLATION_LEVEL_READ_COMMITTED
         with sess.cursor() as cur:
             cur.execute(SQL1, (
-                past_1_week
+                past_1_week,
             ))
         sess.commit()
