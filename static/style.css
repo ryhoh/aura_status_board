@@ -81,7 +81,7 @@ blockquote p {
 
 /* Table */
 table {
-  border-spacing: 5px;
+  border-collapse: collapse
 }
 
 th, td {
@@ -93,18 +93,17 @@ th {
   font-size: 17px;
   font-weight: 500;
   padding: 4px;
-}
-
-th {
   background-color: var(--main);
+  border-left: 2px white solid;
+  border-right: 2px white solid;
 }
 
 tr.bg0 td {
-  background-color: var(--sub-0);
+  background-color: white;
 }
 
 tr.bg1 td {
-  background-color: var(--sub-1);
+  background-color: lightgray;
 }
 
 /* Text Color */
